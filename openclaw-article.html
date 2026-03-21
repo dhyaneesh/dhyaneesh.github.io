@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="any">
 <title>The Power Law of Agent Plugins: What OpenClaw Tells Us About the Future of AI Extensions</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,6 +22,60 @@
   --sans: 'DM Sans', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', monospace;
 }
+[data-theme="dark"] {
+  --ink: #e5e1d8;
+  --paper: #0d0d0c;
+  --cream: #161514;
+  --accent: #e85d3a;
+  --accent2: #4e82e6;
+  --muted: #807b72;
+  --border: #2a2724;
+}
+.theme-toggle { background:none; border:1px solid var(--border); color:var(--muted); font-size:.9rem; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:color .3s,border-color .3s,transform .6s cubic-bezier(.4,0,.2,1); line-height:1; padding:0; }
+.theme-toggle:hover { color:var(--ink); border-color:var(--ink); }
+[data-theme="dark"] .theme-toggle { transform:rotate(180deg); }
+[data-theme="dark"] .figure { box-shadow: 0 0 60px rgba(232,93,58,0.04); }
+[data-theme="dark"] svg rect[fill="#f5f2ec"] { fill: var(--paper); }
+[data-theme="dark"] svg rect[fill="#ede9e0"] { fill: var(--cream); }
+[data-theme="dark"] svg text[fill="#0f0f0e"] { fill: var(--ink); }
+[data-theme="dark"] svg text[fill="#6b6860"] { fill: var(--muted); }
+[data-theme="dark"] svg text[fill="#c8402a"] { fill: var(--accent); }
+[data-theme="dark"] svg line { stroke: var(--border); }
+[data-theme="dark"] [style*="color:#0f0f0e"] { color: var(--ink) !important; }
+[data-theme="dark"] [style*="color:#6b6860"] { color: var(--muted) !important; }
+[data-theme="dark"] [style*="color:#c8402a"] { color: var(--accent) !important; }
+[data-theme="dark"] [style*="color:#f5f2ec"] { color: var(--paper) !important; }
+[data-theme="dark"] [style*="color:#d4cfc4"] { color: var(--muted) !important; }
+[data-theme="dark"] [style*="color:#2a5fc8"] { color: var(--accent2) !important; }
+[data-theme="dark"] [style*="background:#c8402a"] { background: var(--accent) !important; }
+[data-theme="dark"] [style*="background:#0f0f0e"] { background: var(--ink) !important; }
+[data-theme="dark"] [style*="background:#d4cfc4"] { background: var(--border) !important; }
+[data-theme="dark"] [style*="background:#f5f2ec"] { background: var(--paper) !important; }
+[data-theme="dark"] [style*="background:#ede9e0"] { background: var(--cream) !important; }
+[data-theme="dark"] [style*="border:1px solid #d4cfc4"] { border-color: var(--border) !important; }
+[data-theme="dark"] [style*="border:2px solid #c8402a"] { border-color: var(--accent) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #d4cfc4"] { border-color: var(--border) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #c8402a"] { border-color: var(--accent) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #0f0f0e"] { border-color: var(--ink) !important; }
+[data-theme="dark"] [style*="border:1px solid #6b6860"] { border-color: var(--muted) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #6b6860"] { border-color: var(--muted) !important; }
+[data-theme="dark"] [style*="border:1px solid #2a5fc8"] { border-color: var(--accent2) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #2a5fc8"] { border-color: var(--accent2) !important; }
+[data-theme="dark"] [style*="border-left:1.5px solid #0f0f0e"] { border-color: var(--ink) !important; }
+[data-theme="dark"] [style*="border-bottom:1.5px solid #0f0f0e"] { border-color: var(--ink) !important; }
+[data-theme="dark"] [style*="border:1.5px dashed #c8402a"] { border-color: var(--accent) !important; }
+[data-theme="dark"] [style*="border:1.5px dashed #6b6860"] { border-color: var(--muted) !important; }
+[data-theme="dark"] [style*="border-top:1px dashed #d4cfc4"] { border-top-color: var(--border) !important; }
+[data-theme="dark"] [style*="border-left:1px dashed #d4cfc4"] { border-left-color: var(--border) !important; }
+[data-theme="dark"] [style*="rgba(200,64,42,0.12)"] { background: rgba(232,93,58,0.2) !important; }
+[data-theme="dark"] [style*="rgba(200,64,42,0.06)"] { background: rgba(232,93,58,0.12) !important; }
+[data-theme="dark"] [style*="rgba(42,95,200,0.1)"] { background: rgba(78,130,230,0.18) !important; }
+[data-theme="dark"] [style*="rgba(42,95,200,0.08)"] { background: rgba(78,130,230,0.15) !important; }
+[data-theme="dark"] [style*="rgba(107,104,96,0.12)"] { background: rgba(128,123,114,0.2) !important; }
+[data-theme="dark"] [style*="rgba(107,104,96,0.08)"] { background: rgba(128,123,114,0.15) !important; }
+[data-theme="dark"] [style*="rgba(107,104,96,0.07)"] { background: rgba(128,123,114,0.15) !important; }
+[data-theme="dark"] .figure [style*="color:#6b6860"] { color: #a8a49b !important; }
+[data-theme="dark"] .figure [style*="color:#d4cfc4"] { color: #918d85 !important; }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -33,6 +88,7 @@ body {
   font-weight: 300;
   line-height: 1.75;
   -webkit-font-smoothing: antialiased;
+  transition: background-color .4s, color .4s;
 }
 
 /* ── LAYOUT ── */
@@ -52,6 +108,23 @@ body {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
+.masthead-actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.masthead-home {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.masthead-home:hover { color: var(--ink); }
 .site-tag {
   font-family: var(--mono);
   font-size: 0.65rem;
@@ -427,10 +500,12 @@ p strong { font-weight: 500; }
   font-family: var(--serif);
   font-size: 2.5rem;
   font-weight: 900;
-  color: var(--border);
+  color: var(--accent);
   line-height: 1;
   text-align: right;
+  opacity: .35;
 }
+[data-theme="dark"] .playbook-num { opacity: .55; }
 .playbook-label {
   font-family: var(--mono);
   font-size: 0.6rem;
@@ -463,6 +538,7 @@ p strong { font-weight: 500; }
 
 /* ── SVG DIAGRAMS ── */
 svg { max-width: 100%; display: block; }
+.figure svg { width: 100%; height: auto; }
 
 /* ── FOOTER ── */
 .article-footer {
@@ -487,10 +563,127 @@ svg { max-width: 100%; display: block; }
 
 /* ── RESPONSIVE ── */
 
+/* ── LARGE DESKTOP ── */
+@media (min-width: 1100px) {
+  .container { max-width: 920px; }
+  .container--wide { max-width: 1280px; }
+  .hero h1 { max-width: 880px; }
+  .hero-deck { max-width: 680px; }
+  .stat-row { margin: 3rem 0; }
+  .stat-val { font-size: 2.2rem; }
+  .stat-cell { padding: 1.5rem 2rem; }
+  .playbook-item { grid-template-columns: 4rem 1fr; gap: 2rem; }
+  .playbook-num { font-size: 3rem; }
+  .figure { margin: 3.5rem -2rem; padding: 2.5rem; }
+  .chart-wrap--tall { height: 460px; }
+}
+
+/* ── ULTRAWIDE ── */
+@media (min-width: 1440px) {
+  .container { max-width: 1000px; padding: 0 3rem; }
+  .container--wide { max-width: 1400px; padding: 0 3rem; }
+  .hero { padding: 6rem 0 3.5rem; }
+  .hero h1 { font-size: 3.8rem; max-width: 940px; }
+  .hero-deck { font-size: 1.2rem; max-width: 720px; }
+  .byline { font-size: .68rem; gap: 2rem; }
+  h2 { font-size: 2.4rem; }
+  h3 { font-size: 1.35rem; }
+  p { font-size: 1.05rem; }
+  .pull-quote p { font-size: 1.5rem; }
+  .article-body { padding: 5rem 0; }
+  .section-marker { padding-top: 5rem; margin-bottom: 3.5rem; }
+  .figure { margin: 4rem -3rem; padding: 3rem; }
+  .chart-wrap { height: 380px; }
+  .chart-wrap--tall { height: 520px; }
+  .stat-cell { padding: 1.75rem 2.5rem; }
+  .stat-val { font-size: 2.5rem; }
+  .stat-label { font-size: .6rem; }
+  .callout { padding: 2rem 2.5rem; }
+  .callout p { font-size: .95rem; }
+  .compare-card { padding: 1.5rem 2rem; }
+  .playbook-item { grid-template-columns: 4.5rem 1fr; gap: 2.5rem; padding: 2.5rem 0; }
+  .playbook-num { font-size: 3.2rem; }
+  .playbook-title { font-size: 1.25rem; }
+  .playbook-body { font-size: .95rem; }
+  .timeline-item { padding: 1.5rem 0 1.5rem 4rem; }
+  .timeline-body { font-size: .88rem; }
+  .article-footer { padding: 2.5rem 0 5rem; margin-top: 5rem; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.entrance { opacity: 0; transform: translateY(18px); animation: fadeUp .7s cubic-bezier(.16,1,.3,1) forwards; }
+.entrance-d1 { animation-delay: .12s; }
+.entrance-d2 { animation-delay: .24s; }
+.entrance-d3 { animation-delay: .36s; }
+.entrance-d4 { animation-delay: .48s; }
+
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.figure { transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background-color .4s, border-color .4s; }
+.figure:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.06); }
+.playbook-item { transition: transform .25s ease; }
+.playbook-item:hover { transform: translateX(4px); }
+.callout { transition: transform .3s ease, box-shadow .3s ease; }
+.callout:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.04); }
+.compare-card { transition: transform .25s ease, box-shadow .25s ease; }
+.compare-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; }
+}
+
 /* Tablet */
 @media (max-width: 860px) {
+  .masthead-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  /* Home + toggle on row 1; issue meta full width below — avoids crowding */
+  .masthead-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0.85rem 1.5rem;
+    width: 100%;
+    align-items: center;
+  }
+  .masthead-home {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .theme-toggle {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .masthead-actions .issue-meta {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: left;
+  }
   .container--wide { padding: 0 1.5rem; }
   .chart-wrap--tall { height: 340px; }
+  .figure { overflow-x: hidden; overflow-y: visible; }
+  .figure svg { min-width: 0; width: 100%; max-width: 100%; height: auto; }
+  .phase-row { flex-direction: column !important; align-items: stretch !important; }
+  .phase-row > div[style*="position:absolute"] { display: none !important; }
+  .phase-row > div[style*="flex:1"] {
+    border: 1px solid var(--border) !important;
+    border-bottom: none !important;
+    border-right: 1px solid var(--border) !important;
+  }
+  .phase-row > div[style*="flex:1"]:last-of-type { border-bottom: 1px solid var(--border) !important; }
+  .phase-row > div[style*="border:2px solid #c8402a"] {
+    border: 2px solid var(--accent) !important;
+  }
 }
 
 /* Mobile */
@@ -500,15 +693,17 @@ svg { max-width: 100%; display: block; }
   .container--wide { padding: 0 1.25rem; }
 
   /* masthead */
-  .masthead { padding: 1rem 0 0.75rem; }
-  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
-  .issue-meta { text-align: left; }
+  .masthead { padding: 1.2rem 0 1rem; }
+  .masthead-inner { gap: 0.9rem; }
+  .masthead-actions { gap: 0.75rem 1.25rem; }
+  .issue-meta { font-size: 0.62rem; line-height: 1.55; }
+  .theme-toggle { width: 22px; height: 22px; font-size: .7rem; }
 
   /* hero */
   .hero { padding: 2.5rem 0 2rem; }
-  .hero h1 { font-size: 2rem; margin-bottom: 1.25rem; }
-  .hero-deck { font-size: 0.95rem; margin-bottom: 1.75rem; }
-  .byline { flex-wrap: wrap; gap: 0.5rem; }
+  .hero h1 { font-size: 1.75rem; margin-bottom: 1rem; line-height: 1.12; }
+  .hero-deck { font-size: 0.92rem; margin-bottom: 1.5rem; line-height: 1.55; }
+  .byline { flex-wrap: wrap; gap: 0.4rem 0.75rem; font-size: 0.58rem; }
   .byline-sep { display: none; }
 
   /* section markers */
@@ -516,51 +711,75 @@ svg { max-width: 100%; display: block; }
   .section-tag { display: none; }
 
   /* article body */
-  .article-body { padding: 2.5rem 0; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.1rem; margin: 2rem 0 0.75rem; }
+  .article-body { padding: 2rem 0; }
+  h2 { font-size: 1.4rem; margin-bottom: 1.25rem; }
+  h3 { font-size: 1.05rem; margin: 1.75rem 0 0.75rem; }
+  p { font-size: 0.92rem; line-height: 1.65; margin-bottom: 1.2rem; }
 
   /* pull quote */
-  .pull-quote { padding-left: 1.25rem; margin: 2rem 0; }
-  .pull-quote p { font-size: 1.1rem; }
+  .pull-quote { padding-left: 1.25rem; margin: 2rem 0; border-left-width: 2px; }
+  .pull-quote p { font-size: 1.05rem; line-height: 1.4; }
 
   /* callout */
-  .callout { padding: 1.25rem 1.25rem; }
+  .callout { padding: 1.15rem 1.15rem; margin: 2rem 0; }
+  .callout-label { font-size: 0.56rem; margin-bottom: 0.6rem; }
+  .callout p { font-size: 0.84rem; line-height: 1.6; }
 
   /* figures — bleed edge to edge */
-  .figure { margin: 2rem -1.25rem; padding: 1.25rem; border-radius: 0; border-left: none; border-right: none; }
-  .chart-wrap { height: 260px; }
-  .chart-wrap--tall { height: 300px; }
+  .figure { margin: 2rem -1.25rem; padding: 1.15rem; border-radius: 0; border-left: none; border-right: none; overflow-x: hidden; overflow-y: visible; }
+  .figure-title { font-size: 0.55rem; margin-bottom: 1rem; }
+  .figure-caption { font-size: 0.74rem; margin-top: 1rem; line-height: 1.5; }
+  .chart-wrap { height: 240px; }
+  .chart-wrap--tall { height: 280px; }
 
-  /* stat row — 2×2 grid on mobile */
-  .stat-row { grid-template-columns: repeat(2, 1fr); }
-  .stat-val { font-size: 1.5rem; }
-  .stat-label { min-height: auto; font-size: 0.54rem; }
+  /* SVG scales to column width — no horizontal scroll */
+  .figure svg { min-width: 0; width: 100%; max-width: 100%; height: auto; }
 
-  /* SVG figures — horizontal scroll rather than squish */
-  .figure { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .figure svg { min-width: 560px; }
+  /* stat row — 2x2 grid on mobile */
+  .stat-row { grid-template-columns: repeat(2, 1fr); margin: 2rem 0; }
+  .stat-val { font-size: 1.4rem; }
+  .stat-label { min-height: auto; font-size: 0.52rem; }
+  .stat-sub { font-size: 0.68rem; }
+  .stat-cell { padding: 1rem 1.1rem; }
 
-  /* phase lifecycle diagram — stack vertically on mobile */
-  .phase-row { flex-direction: column !important; }
-  .phase-row > div { border-right: 1px solid var(--border) !important; border-bottom: none; }
-  .phase-row > div:not(:last-child) { border-bottom: none; }
+  /* compare grid — single column */
+  .compare-grid { grid-template-columns: 1fr; }
+  .compare-card { padding: 1rem 1.15rem; }
+  .compare-name { font-size: 0.92rem; margin-bottom: 0.6rem; }
+  .compare-list li { font-size: 0.75rem; }
+
+  /* timeline — tighter on mobile */
+  .timeline::before { left: 16px; }
+  .timeline-item { padding: 1rem 0 1rem 2.75rem; }
+  .timeline-dot { left: 10px; top: 1.3rem; width: 11px; height: 11px; }
+  .timeline-phase { font-size: 0.55rem; }
+  .timeline-title { font-size: 0.88rem; }
+  .timeline-body { font-size: 0.78rem; }
 
   /* playbook */
-  .playbook-item { grid-template-columns: 2.5rem 1fr; gap: 1rem; padding: 1.5rem 0; }
-  .playbook-num { font-size: 1.8rem; }
-  .playbook-title { font-size: 1rem; }
+  .playbook-item { grid-template-columns: 2.25rem 1fr; gap: 0.85rem; padding: 1.25rem 0; }
+  .playbook-num { font-size: 1.6rem; }
+  .playbook-label { font-size: 0.55rem; }
+  .playbook-title { font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .playbook-body { font-size: 0.82rem; line-height: 1.6; }
+  .playbook-evidence { gap: 5px; margin-top: 0.6rem; }
 
   /* pills */
-  .pill { font-size: 0.56rem; }
+  .pill { font-size: 0.54rem; padding: 2px 7px; }
+
+  /* data table — horizontal scroll */
+  .data-table { font-size: 0.74rem; }
+  .data-table th { font-size: 0.54rem; padding: 0.4rem 0.5rem; }
+  .data-table td { padding: 0.45rem 0.5rem; }
 
   /* footer */
-  .article-footer { padding: 1.5rem 0 3rem; margin-top: 2rem; }
+  .article-footer { padding: 1.5rem 0 2.5rem; margin-top: 2rem; }
   .footer-inner { flex-direction: column; gap: 1rem; }
-  .footer-note { max-width: 100%; }
+  .footer-note { max-width: 100%; font-size: 0.58rem; }
   .footer-note:last-child { text-align: left; }
 }
 </style>
+<script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark')})();</script>
 </head>
 <body>
 
@@ -572,9 +791,13 @@ svg { max-width: 100%; display: block; }
         <div class="site-tag">Analysis & Commentary</div>
         <div class="site-name">Agent Ecosystems</div>
       </div>
-      <div class="issue-meta">
-        March 2026<br>
-        Field Report No. 1
+      <div class="masthead-actions">
+        <a href="index.html" class="masthead-home">← Home</a>
+        <div class="issue-meta">
+          March 2026<br>
+          Field Report No. 1
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">◐</button>
       </div>
     </div>
   </div>
@@ -583,10 +806,10 @@ svg { max-width: 100%; display: block; }
 <!-- HERO -->
 <div class="container">
   <div class="hero">
-    <div class="hero-kicker">Plugin Economies</div>
-    <h1>The Power Law of <em>Agent Plugins</em>: What OpenClaw Tells Us About the Future of AI Extensions</h1>
-    <p class="hero-deck">A data-driven analysis of the OpenClaw skill ecosystem, what dominates, why, and what every major plugin market in history says will happen next.</p>
-    <div class="byline">
+    <div class="hero-kicker entrance">Plugin Economies</div>
+    <h1 class="entrance entrance-d1">The Power Law of <em>Agent Plugins</em>: What OpenClaw Tells Us About the Future of AI Extensions</h1>
+    <p class="hero-deck entrance entrance-d2">A data-driven analysis of the OpenClaw skill ecosystem, what dominates, why, and what every major plugin market in history says will happen next.</p>
+    <div class="byline entrance entrance-d3">
       <span>Based on live ClawHub data</span>
       <span class="byline-sep">·</span>
       <span>31,399 skills analysed</span>
@@ -601,7 +824,7 @@ svg { max-width: 100%; display: block; }
 <div class="article-body">
 
 <!-- ═══════════════════════════════════ SECTION 1 ═══════════════════════════════════ -->
-<div class="section-marker">
+<div class="section-marker reveal">
   <span class="section-num">01 /</span>
   <div class="section-rule"></div>
   <span class="section-tag">What is OpenClaw</span>
@@ -613,14 +836,14 @@ svg { max-width: 100%; display: block; }
 
 <p>The skill registry, ClawHub, is the distribution layer. As of March 2026, it hosts 31,399 skills with public download and star counts, which makes it one of the first agent plugin markets to have enough data to analyse seriously.</p>
 
-<div class="callout">
+<div class="callout reveal">
   <div class="callout-label">Technical definition</div>
   <p>An OpenClaw skill is a Markdown file with structured sections: a trigger condition (when the agent should use it), a set of instructions, and optional metadata. When installed, the skill is injected into the agent's context window at the appropriate moment. This is fundamentally different from traditional plugins: there is no compiled code, no API surface, and no runtime dependency, just structured natural language that modifies the agent's reasoning.</p>
 </div>
 
 <p>This has an interesting implication: the bottleneck for skill quality is not engineering but clarity. The best skills are not the most technically complex, they are the most precisely written. As we will see, this creates a very different competitive dynamic from software plugin markets that came before.</p>
 
-<div class="stat-row">
+<div class="stat-row reveal">
   <div class="stat-cell">
     <div class="stat-label">Total skills</div>
     <div class="stat-val">31,399</div>
@@ -645,7 +868,7 @@ svg { max-width: 100%; display: block; }
 
 
 <!-- ═══════════════════════════════════ SECTION 2 ═══════════════════════════════════ -->
-<div class="section-marker">
+<div class="section-marker reveal">
   <span class="section-num">02 /</span>
   <div class="section-rule"></div>
   <span class="section-tag">The Most Popular Skills</span>
@@ -665,7 +888,7 @@ svg { max-width: 100%; display: block; }
 
 <!-- POWER LAW CHART - full width -->
 <div class="container--wide">
-  <div class="figure">
+  <div class="figure reveal">
     <div class="figure-title"><span>Fig. 01</span> Power law distribution, top 50 OpenClaw skills by downloads</div>
     <div class="chart-wrap--tall">
       <canvas id="powerLawChart"></canvas>
@@ -688,7 +911,7 @@ svg { max-width: 100%; display: block; }
 
 <!-- CATEGORY CHART - full width -->
 <div class="container--wide">
-  <div class="figure">
+  <div class="figure reveal">
     <div class="figure-title"><span>Fig. 02</span> Aggregate downloads by category, top 50 skills</div>
     <div class="chart-wrap">
       <canvas id="categoryChart"></canvas>
@@ -711,7 +934,7 @@ svg { max-width: 100%; display: block; }
 
 <!-- STARS VS DOWNLOADS SCATTER - full width -->
 <div class="container--wide">
-  <div class="figure">
+  <div class="figure reveal">
     <div class="figure-title"><span>Fig. 03</span> Stars vs downloads, quality signal divergence</div>
     <div class="chart-wrap">
       <canvas id="starChart"></canvas>
@@ -724,7 +947,7 @@ svg { max-width: 100%; display: block; }
 <div class="article-body">
 
 <!-- ═══════════════════════════════════ SECTION 3 ═══════════════════════════════════ -->
-<div class="section-marker">
+<div class="section-marker reveal">
   <span class="section-num">03 /</span>
   <div class="section-rule"></div>
   <span class="section-tag">Historical Analogues</span>
@@ -734,7 +957,7 @@ svg { max-width: 100%; display: block; }
 
 <p>Every major software platform that opened a plugin layer went through roughly the same sequence: an initial explosion of creator activity, a rapid power-law consolidation, a quality crisis, and then a maturation phase defined by monetisation and platform-level curation. OpenClaw is early in step one. Understanding how that sequence plays out is probably the most useful thing a skill creator can know right now.</p>
 
-<div class="pull-quote">
+<div class="pull-quote reveal">
   <p>"The question is not whether OpenClaw will follow the pattern. It is how fast it will move through each phase, and which skills will survive the transitions."</p>
 </div>
 
@@ -752,7 +975,7 @@ svg { max-width: 100%; display: block; }
 </div>
 
 <div class="container--wide">
-  <div class="figure">
+  <div class="figure reveal">
     <div class="figure-title"><span>Fig. 04</span> Historical platform analogues, structural parallels to OpenClaw</div>
     <svg viewBox="0 0 1000 730" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
 
@@ -897,9 +1120,9 @@ svg { max-width: 100%; display: block; }
 
   <!-- Arrow connector bar -->
   <div style="display:flex;align-items:center;gap:0;margin-bottom:1.25rem;">
-    <div style="flex:1;height:1px;background:linear-gradient(to right,#d4cfc4,#c8402a 50%,#d4cfc4);"></div>
+    <div style="flex:1;height:1px;background:linear-gradient(to right,var(--border),var(--accent) 50%,var(--border));"></div>
     <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b6860;letter-spacing:.08em;padding:0 12px;white-space:nowrap;">direction of travel</div>
-    <div style="flex:1;height:1px;background:linear-gradient(to right,#d4cfc4,#d4cfc4);"></div>
+    <div style="flex:1;height:1px;background:linear-gradient(to right,var(--border),var(--border));"></div>
   </div>
 
   <p style="font-size:0.82rem;color:#6b6860;line-height:1.6;font-style:italic;">The transition from stage 3 to stage 4 will be the single most consequential event for skill creators in the next 12 months.</p>
@@ -911,7 +1134,7 @@ svg { max-width: 100%; display: block; }
 
 <p>Mathematically, if you plot rank on the x-axis and downloads on the y-axis on a log-log scale, a pure power law gives you a straight line. The OpenClaw data is not quite a straight line yet, it is steeper at the top than a mature market, reflecting the fact that the distribution has not had time to develop a proper long tail. As more skills accumulate downloads over time, the curve will flatten and broaden. But the top of the distribution will stay compressed: the #1 skill will likely always hold a multiple of 5–20× over the median.</p>
 
-<div class="callout">
+<div class="callout reveal">
   <div class="callout-label">Theory note, Zipf's Law</div>
   <p>Zipf's Law, a special case of the power law with α ≈ 1, states that the n-th most common item appears with frequency proportional to 1/n. Word frequencies in language, city populations, and yes, software download distributions all approximate Zipf's Law over time. The OpenClaw data currently has a steeper alpha (roughly 1.4–1.6 by estimation), consistent with a young market where the compounding effect has had less time to operate.</p>
   <p>Implication: as the market matures, the top skill's relative dominance will actually decrease, not because it loses downloads, but because the long tail fills in. A skill at rank 200 today may have 500 downloads. In five years, the same rank may have 10,000 downloads. The power law flattens from the bottom up.</p>
@@ -923,7 +1146,7 @@ svg { max-width: 100%; display: block; }
 
 <p>This creates a kind of risk that the App Store, npm, and WordPress never had to deal with: the skills that currently occupy the top 3 positions, all agent self-improvement skills, are precisely the category the platform itself has the most incentive to absorb. If Claude 4 or 5 natively handles persistent memory, self-correction, and context management, the top 3 skills on ClawHub get deprecated by a model update. This is the equivalent of Apple folding flashlight apps into iOS, except it would happen to the highest-value category on the platform rather than a minor utility.</p>
 
-<div class="pull-quote">
+<div class="pull-quote reveal">
   <p>"The skills that are most popular today are most at risk of becoming unnecessary tomorrow. That is the central strategic tension of building on a rapidly improving platform."</p>
 </div>
 
@@ -932,11 +1155,11 @@ svg { max-width: 100%; display: block; }
 
 <!-- TRAJECTORY SVG -->
 <div class="container--wide">
-  <div class="figure">
+  <div class="figure reveal">
     <div class="figure-title"><span>Fig. 05</span> Predicted OpenClaw market trajectory, three phases</div>
 
     <!-- Timeline connector bar -->
-    <div style="position:relative;display:flex;align-items:flex-start;gap:0;margin-bottom:1.5rem;">
+    <div class="phase-row" style="position:relative;display:flex;align-items:flex-start;gap:0;margin-bottom:1.5rem;">
 
       <!-- connecting line behind dots -->
       <div style="position:absolute;top:20px;left:calc(16.66% + 0px);right:calc(16.66% + 0px);height:1px;background:var(--border,#d4cfc4);z-index:0;"></div>
@@ -1011,7 +1234,7 @@ svg { max-width: 100%; display: block; }
 <div class="article-body">
 
 <!-- ═══════════════════════════════════ SECTION 4 ═══════════════════════════════════ -->
-<div class="section-marker">
+<div class="section-marker reveal">
   <span class="section-num">04 /</span>
   <div class="section-rule"></div>
   <span class="section-tag">How to Win</span>
@@ -1021,7 +1244,7 @@ svg { max-width: 100%; display: block; }
 
 <p>Everything that follows is derived from pattern-matching against the historical analogues above, filtered through the specific dynamics of the OpenClaw data. These are not generic startup tips. Each one maps to something specific in the data.</p>
 
-<div class="playbook-item">
+<div class="playbook-item reveal">
   <div class="playbook-num">1</div>
   <div>
     <div class="playbook-label">Principle</div>
@@ -1035,7 +1258,7 @@ svg { max-width: 100%; display: block; }
   </div>
 </div>
 
-<div class="playbook-item">
+<div class="playbook-item reveal">
   <div class="playbook-num">2</div>
   <div>
     <div class="playbook-label">Principle</div>
@@ -1049,7 +1272,7 @@ svg { max-width: 100%; display: block; }
   </div>
 </div>
 
-<div class="playbook-item">
+<div class="playbook-item reveal">
   <div class="playbook-num">3</div>
   <div>
     <div class="playbook-label">Principle</div>
@@ -1062,7 +1285,7 @@ svg { max-width: 100%; display: block; }
   </div>
 </div>
 
-<div class="playbook-item">
+<div class="playbook-item reveal">
   <div class="playbook-num">4</div>
   <div>
     <div class="playbook-label">Principle</div>
@@ -1076,7 +1299,7 @@ svg { max-width: 100%; display: block; }
   </div>
 </div>
 
-<div class="playbook-item">
+<div class="playbook-item reveal">
   <div class="playbook-num">5</div>
   <div>
     <div class="playbook-label">Principle</div>
@@ -1090,7 +1313,7 @@ svg { max-width: 100%; display: block; }
   </div>
 </div>
 
-<div class="playbook-item">
+<div class="playbook-item reveal">
   <div class="playbook-num">6</div>
   <div>
     <div class="playbook-label">Principle</div>
@@ -1104,7 +1327,7 @@ svg { max-width: 100%; display: block; }
   </div>
 </div>
 
-<div class="callout">
+<div class="callout reveal">
   <div class="callout-label">The central risk, and why this playbook has limits</div>
   <p>Every principle above assumes the platform remains stable enough for skill moats to compound over time. The unique risk in OpenClaw, absent from every historical analogue, is that the underlying model is itself improving rapidly.</p>
   <p>The self-improvement skills at #1, #2, and #3 exist because current Claude models are not natively good at persistent memory, self-correction, and structured knowledge graphs. If Claude 4 or 5 handles these natively, the top 3 skills on ClawHub are deprecated by a release note. This is not a theoretical risk, it is the central strategic tension of building on a rapidly improving AI platform.</p>
@@ -1116,7 +1339,7 @@ svg { max-width: 100%; display: block; }
 
 <!-- FINAL SVG: strategic matrix -->
 <div class="container--wide">
-  <div class="figure">
+  <div class="figure reveal">
     <div class="figure-title"><span>Fig. 06</span> Strategic opportunity matrix, durability vs current demand</div>
     <!-- HTML bubble chart: position bubbles via % on a relative container -->
     <div class="phase-row" style="display:flex;gap:0;align-items:stretch;">
@@ -1276,14 +1499,10 @@ svg { max-width: 100%; display: block; }
 
 <!-- CHARTS INIT -->
 <script>
-const colors = {
-  accent: '#c8402a',
-  accent2: '#2a5fc8',
-  muted: '#6b6860',
-  border: '#d4cfc4',
-  ink: '#0f0f0e',
-  paper: '#f5f2ec',
-};
+function hexToRgba(hex,a){var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')';}
+function getColors(){var s=getComputedStyle(document.documentElement);return{accent:s.getPropertyValue('--accent').trim()||'#c8402a',accent2:s.getPropertyValue('--accent2').trim()||'#2a5fc8',muted:s.getPropertyValue('--muted').trim()||'#6b6860',border:s.getPropertyValue('--border').trim()||'#d4cfc4',ink:s.getPropertyValue('--ink').trim()||'#0f0f0e',paper:s.getPropertyValue('--paper').trim()||'#f5f2ec'};}
+function buildCharts(){['powerLawChart','categoryChart','starChart'].forEach(function(id){var c=Chart.getChart(id);if(c)c.destroy();});
+var colors=getColors();
 
 // ── FIG 01: Power Law ──
 {
@@ -1297,7 +1516,7 @@ const colors = {
       datasets: [{
         data: downloads,
         borderColor: colors.accent,
-        backgroundColor: 'rgba(200,64,42,0.06)',
+        backgroundColor: hexToRgba(colors.accent,0.06),
         borderWidth: 2,
         pointRadius: 3,
         pointBackgroundColor: colors.accent,
@@ -1317,9 +1536,9 @@ const colors = {
             title: ctx => `Rank #${ctx[0].label}`,
             label: ctx => `${ctx.raw}k downloads`,
           },
-          backgroundColor: colors.ink,
-          titleColor: '#fff',
-          bodyColor: '#ccc',
+          backgroundColor: '#1a1918',
+          titleColor: '#f0ece4',
+          bodyColor: '#a8a49b',
           padding: 10,
           cornerRadius: 2,
         }
@@ -1328,13 +1547,13 @@ const colors = {
         x: {
           title: { display: true, text: 'Rank', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
           ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, maxTicksLimit: 10 },
-          grid: { color: 'rgba(212,207,196,0.4)' },
+          grid: { color: hexToRgba(colors.border,0.5) },
           border: { color: colors.border },
         },
         y: {
           title: { display: true, text: 'Downloads (thousands)', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
           ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, callback: v => v + 'k' },
-          grid: { color: 'rgba(212,207,196,0.4)' },
+          grid: { color: hexToRgba(colors.border,0.5) },
           border: { color: colors.border },
         }
       }
@@ -1355,7 +1574,7 @@ const colors = {
       labels: sorted.map(s => s.c),
       datasets: [{
         data: sorted.map(s => s.v),
-        backgroundColor: sorted.map((s,i) => i === 0 ? 'rgba(200,64,42,0.7)' : 'rgba(107,104,96,0.25)'),
+        backgroundColor: sorted.map((s,i) => i === 0 ? hexToRgba(colors.accent,0.7) : hexToRgba(colors.muted,0.25)),
         borderColor: sorted.map((s,i) => i === 0 ? colors.accent : colors.border),
         borderWidth: 1,
       }]
@@ -1369,9 +1588,9 @@ const colors = {
           callbacks: {
             label: ctx => `${Math.round(ctx.raw)}k total downloads`,
           },
-          backgroundColor: colors.ink,
-          titleColor: '#fff',
-          bodyColor: '#ccc',
+          backgroundColor: '#1a1918',
+          titleColor: '#f0ece4',
+          bodyColor: '#a8a49b',
           padding: 10,
           cornerRadius: 2,
         }
@@ -1385,7 +1604,7 @@ const colors = {
         y: {
           title: { display: true, text: 'Aggregate downloads (k)', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
           ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, callback: v => v + 'k' },
-          grid: { color: 'rgba(212,207,196,0.4)' },
+          grid: { color: hexToRgba(colors.border,0.5) },
           border: { color: colors.border },
         }
       }
@@ -1439,7 +1658,7 @@ const colors = {
           label: 'Trend',
           data: trendData,
           type: 'line',
-          borderColor: 'rgba(200,64,42,0.35)',
+          borderColor: hexToRgba(colors.accent,0.35),
           borderWidth: 1.5,
           borderDash: [5, 4],
           pointRadius: 0,
@@ -1450,15 +1669,15 @@ const colors = {
         {
           label: 'Normal',
           data: skills.filter(s=>!s.flag).map(s=>({x:s.dl,y:s.s,name:s.n})),
-          backgroundColor: 'rgba(107,104,96,0.5)',
-          borderColor: 'rgba(107,104,96,0.8)',
+          backgroundColor: hexToRgba(colors.muted,0.5),
+          borderColor: hexToRgba(colors.muted,0.8),
           pointRadius: 6,
           pointHoverRadius: 8,
         },
         {
           label: 'Suspicious ratio',
           data: skills.filter(s=>s.flag).map(s=>({x:s.dl,y:s.s,name:s.n})),
-          backgroundColor: 'rgba(200,64,42,0.6)',
+          backgroundColor: hexToRgba(colors.accent,0.6),
           borderColor: colors.accent,
           pointRadius: 8,
           pointHoverRadius: 10,
@@ -1491,9 +1710,9 @@ const colors = {
               return [`${d.name}`, `Downloads: ${d.x}k  Stars: ${d.y}`, `Star rate: ${rate}%`];
             }
           },
-          backgroundColor: colors.ink,
-          titleColor: '#fff',
-          bodyColor: '#ccc',
+          backgroundColor: '#1a1918',
+          titleColor: '#f0ece4',
+          bodyColor: '#a8a49b',
           padding: 10,
           cornerRadius: 2,
         }
@@ -1502,19 +1721,31 @@ const colors = {
         x: {
           title: { display: true, text: 'Downloads (thousands)', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
           ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, callback: v => v + 'k' },
-          grid: { color: 'rgba(212,207,196,0.4)' },
+          grid: { color: hexToRgba(colors.border,0.5) },
           border: { color: colors.border },
         },
         y: {
           title: { display: true, text: 'Stars', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
           ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 } },
-          grid: { color: 'rgba(212,207,196,0.4)' },
+          grid: { color: hexToRgba(colors.border,0.5) },
           border: { color: colors.border },
         }
       }
     }
   });
 }
+}
+buildCharts();
+function toggleTheme(){var h=document.documentElement,d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'light':'dark');localStorage.setItem('theme',d?'light':'dark');setTimeout(buildCharts,50);}
+
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}
+    });
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+})();
 </script>
 
 </body>

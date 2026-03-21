@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="any">
+<title>The Autonomous Development Stack: Two Competing Visions</title>
+<meta name="description" content="Agent Orchestrator vs OpenAI Symphony: parallel agents, CI feedback loops, and who stays in control of AI-assisted development.">
+<meta property="og:title" content="The Autonomous Development Stack: Two Competing Visions">
+<meta property="og:description" content="Comparing Composio's Agent Orchestrator and OpenAI's Symphony on architecture, philosophy, and real testing on ragas.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0f0e;
+  --paper: #f5f2ec;
+  --cream: #ede9e0;
+  --accent: #c8402a;
+  --accent2: #2a5fc8;
+  --muted: #6b6860;
+  --border: #d4cfc4;
+  --serif: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+[data-theme="dark"] {
+  --ink: #e5e1d8;
+  --paper: #0d0d0c;
+  --cream: #161514;
+  --accent: #e85d3a;
+  --accent2: #4e82e6;
+  --muted: #807b72;
+  --border: #2a2724;
+}
+.theme-toggle { background:none; border:1px solid var(--border); color:var(--muted); font-size:.9rem; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:color .3s,border-color .3s,transform .6s cubic-bezier(.4,0,.2,1); line-height:1; padding:0; }
+.theme-toggle:hover { color:var(--ink); border-color:var(--ink); }
+[data-theme="dark"] .theme-toggle { transform:rotate(180deg); }
+[data-theme="dark"] .figure { box-shadow: 0 0 60px rgba(232,93,58,0.04); }
+[data-theme="dark"] svg rect[fill="#f5f2ec"] { fill: var(--paper); }
+[data-theme="dark"] svg rect[fill="#ede9e0"] { fill: var(--cream); }
+[data-theme="dark"] svg text[fill="#0f0f0e"] { fill: var(--ink); }
+[data-theme="dark"] svg text[fill="#6b6860"] { fill: var(--muted); }
+[data-theme="dark"] svg text[fill="#c8402a"] { fill: var(--accent); }
+[data-theme="dark"] svg line { stroke: var(--border); }
+[data-theme="dark"] svg polygon[fill="#d4cfc4"] { fill: var(--border); }
+[data-theme="dark"] [style*="color:#0f0f0e"] { color: var(--ink) !important; }
+[data-theme="dark"] [style*="color:#6b6860"] { color: var(--muted) !important; }
+[data-theme="dark"] [style*="color:#c8402a"] { color: var(--accent) !important; }
+[data-theme="dark"] [style*="color:#f5f2ec"] { color: var(--paper) !important; }
+[data-theme="dark"] [style*="color:#d4cfc4"] { color: var(--muted) !important; }
+[data-theme="dark"] [style*="color:#2a5fc8"] { color: var(--accent2) !important; }
+[data-theme="dark"] [style*="background:#c8402a"] { background: var(--accent) !important; }
+[data-theme="dark"] [style*="background:#0f0f0e"] { background: var(--ink) !important; }
+[data-theme="dark"] [style*="background:#d4cfc4"] { background: var(--border) !important; }
+[data-theme="dark"] [style*="background:#f5f2ec"] { background: var(--paper) !important; }
+[data-theme="dark"] [style*="background:#ede9e0"] { background: var(--cream) !important; }
+[data-theme="dark"] [style*="border:1px solid #d4cfc4"] { border-color: var(--border) !important; }
+[data-theme="dark"] [style*="border:2px solid #c8402a"] { border-color: var(--accent) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #d4cfc4"] { border-color: var(--border) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #c8402a"] { border-color: var(--accent) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #0f0f0e"] { border-color: var(--ink) !important; }
+[data-theme="dark"] [style*="border:1px solid #6b6860"] { border-color: var(--muted) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #6b6860"] { border-color: var(--muted) !important; }
+[data-theme="dark"] [style*="border:1px solid #2a5fc8"] { border-color: var(--accent2) !important; }
+[data-theme="dark"] [style*="border:1.5px solid #2a5fc8"] { border-color: var(--accent2) !important; }
+[data-theme="dark"] [style*="border-left:1.5px solid #0f0f0e"] { border-color: var(--ink) !important; }
+[data-theme="dark"] [style*="border-bottom:1.5px solid #0f0f0e"] { border-color: var(--ink) !important; }
+[data-theme="dark"] [style*="border:1.5px dashed #c8402a"] { border-color: var(--accent) !important; }
+[data-theme="dark"] [style*="border:1.5px dashed #6b6860"] { border-color: var(--muted) !important; }
+[data-theme="dark"] [style*="border-top:1px dashed #d4cfc4"] { border-top-color: var(--border) !important; }
+[data-theme="dark"] [style*="border-left:1px dashed #d4cfc4"] { border-left-color: var(--border) !important; }
+[data-theme="dark"] [style*="rgba(200,64,42,0.12)"] { background: rgba(232,93,58,0.2) !important; }
+[data-theme="dark"] [style*="rgba(200,64,42,0.06)"] { background: rgba(232,93,58,0.12) !important; }
+[data-theme="dark"] [style*="rgba(42,95,200,0.1)"] { background: rgba(78,130,230,0.18) !important; }
+[data-theme="dark"] [style*="rgba(42,95,200,0.08)"] { background: rgba(78,130,230,0.15) !important; }
+[data-theme="dark"] [style*="rgba(107,104,96,0.12)"] { background: rgba(128,123,114,0.2) !important; }
+[data-theme="dark"] [style*="rgba(107,104,96,0.08)"] { background: rgba(128,123,114,0.15) !important; }
+[data-theme="dark"] [style*="rgba(107,104,96,0.07)"] { background: rgba(128,123,114,0.15) !important; }
+[data-theme="dark"] .figure [style*="color:#6b6860"] { color: #a8a49b !important; }
+[data-theme="dark"] .figure [style*="color:#d4cfc4"] { color: #918d85 !important; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 18px; scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .4s, color .4s;
+}
+
+/* ── LAYOUT ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 2rem; }
+.container--wide { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+/* ── HEADER ── */
+.masthead {
+  border-bottom: 2px solid var(--ink);
+  padding: 1.5rem 0 1rem;
+  margin-bottom: 0;
+}
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.masthead-actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.masthead-home {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.masthead-home:hover { color: var(--ink); }
+.site-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.site-name {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.issue-meta {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 5rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+}
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.hero-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -.04em;
+  margin-bottom: 1.75rem;
+  max-width: 780px;
+}
+.hero h1 em {
+  font-style: normal;
+  font-weight: 900;
+  color: var(--accent);
+}
+.hero-deck {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 580px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+.byline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: .05em;
+}
+.byline-sep { color: var(--border); }
+
+/* ── ARTICLE BODY ── */
+.article-body {
+  padding: 4rem 0;
+}
+
+/* ── SECTION HEADERS ── */
+.section-marker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding-top: 4rem;
+}
+.section-marker:first-child { padding-top: 0; }
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--accent);
+  letter-spacing: .1em;
+  min-width: 40px;
+}
+.section-rule { flex: 1; height: 1px; background: var(--border); }
+.section-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  margin-bottom: 1.5rem;
+}
+h3 {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -.015em;
+  margin: 2.5rem 0 1rem;
+}
+
+p {
+  margin-bottom: 1.4rem;
+  font-size: 1rem;
+  font-weight: 300;
+}
+p strong { font-weight: 500; }
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  border-left: 3px solid var(--accent);
+  padding: 0.5rem 0 0.5rem 2rem;
+  margin: 3rem 0;
+}
+.pull-quote p {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 300;
+  font-style: normal;
+  line-height: 1.45;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ── CALLOUT BOX ── */
+.callout {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1.5rem 2rem;
+  margin: 2.5rem 0;
+}
+.callout-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.callout p { font-size: 0.9rem; margin-bottom: 0.75rem; }
+.callout p:last-child { margin-bottom: 0; }
+
+
+/* code block */
+.code-block { background: #1a1917; border-radius: 4px; padding: 1.25rem 1.5rem; margin: 1.5rem 0; overflow-x: auto; }
+.code-block pre { font-family: var(--mono); font-size: 0.75rem; line-height: 1.65; color: #d4cfc4; }
+.code-block .kw { color: #c8402a; }
+[data-theme="dark"] .code-block .kw { color: var(--accent); }
+.code-block .val { color: #9fe1cb; }
+.code-block .comment { color: #888780; }
+.code-block .str { color: #fac775; }
+[data-theme="dark"] .code-block { background: #0d0c0b; border: 1px solid var(--border); }
+[data-theme="dark"] .code-block pre { color: #c8c4bc; }
+
+
+/* ── FIGURES / DIAGRAMS ── */
+.figure {
+  margin: 3rem -1rem;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: 2px;
+}
+.figure-title {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.figure-title span { color: var(--accent); }
+.figure-caption {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 1.25rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ── CHARTS ── */
+.chart-wrap { position: relative; height: 320px; }
+.chart-wrap--tall { height: 420px; }
+
+/* ── DATA TABLE ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin: 1rem 0;
+}
+.data-table th {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1.5px solid var(--ink);
+  text-align: left;
+  font-weight: 400;
+}
+.data-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 300;
+}
+.data-table td:nth-child(1) { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+.data-table td:nth-child(2) { font-weight: 500; }
+.data-table td.num { font-family: var(--mono); font-size: 0.75rem; text-align: right; }
+.data-table td.hl { color: var(--accent); font-weight: 500; }
+
+/* ── STAT CALLOUTS ── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+.stat-cell {
+  background: var(--paper);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  min-height: 2.4em;
+}
+.stat-val {
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
+.stat-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ── COMPARISON GRID ── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.compare-card {
+  background: var(--paper);
+  padding: 1.25rem 1.5rem;
+}
+.compare-era {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: .08em;
+  margin-bottom: 0.4rem;
+}
+.compare-name {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.compare-list { list-style: none; }
+.compare-list li {
+  font-size: 0.78rem;
+  font-weight: 300;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.compare-list li:last-child { border-bottom: none; }
+.compare-list li::before {
+  content: '→';
+  font-size: 0.7rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+/* ── PHASE TIMELINE ── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 2rem 0;
+  position: relative;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+.timeline-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.25rem 0 1.25rem 3.5rem;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-dot {
+  position: absolute;
+  left: 14px;
+  top: 1.6rem;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--border);
+}
+.timeline-dot.active { border-color: var(--accent); background: var(--accent); }
+.timeline-phase {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.timeline-title {
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.timeline-body { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+
+/* ── PLAYBOOK ── */
+.playbook-item {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.playbook-num {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+  text-align: right;
+  opacity: .35;
+}
+[data-theme="dark"] .playbook-num { opacity: .55; }
+.playbook-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.playbook-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.playbook-body { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+.playbook-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.75rem;
+}
+.pill {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+/* ── SVG DIAGRAMS ── */
+svg { max-width: 100%; display: block; }
+.figure svg { width: 100%; height: auto; }
+
+/* Wide diagrams: scale to column width; use stacked markup (e.g. .figure-compare-grid) instead of side-scroll. */
+.figure-scroll {
+  overflow-x: visible;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.figure-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+}
+
+/* ── FOOTER ── */
+.article-footer {
+  border-top: 2px solid var(--ink);
+  padding: 2rem 0 4rem;
+  margin-top: 4rem;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.footer-note {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 460px;
+}
+
+/* ── RESPONSIVE ── */
+
+/* ── LARGE DESKTOP ── */
+@media (min-width: 1100px) {
+  .container { max-width: 920px; }
+  .container--wide { max-width: 1280px; }
+  .hero h1 { max-width: 880px; }
+  .hero-deck { max-width: 680px; }
+  .stat-row { margin: 3rem 0; }
+  .stat-val { font-size: 2.2rem; }
+  .stat-cell { padding: 1.5rem 2rem; }
+  .playbook-item { grid-template-columns: 4rem 1fr; gap: 2rem; }
+  .playbook-num { font-size: 3rem; }
+  .figure { margin: 3.5rem -2rem; padding: 2.5rem; }
+  .chart-wrap--tall { height: 460px; }
+}
+
+/* ── ULTRAWIDE ── */
+@media (min-width: 1440px) {
+  .container { max-width: 1000px; padding: 0 3rem; }
+  .container--wide { max-width: 1400px; padding: 0 3rem; }
+  .hero { padding: 6rem 0 3.5rem; }
+  .hero h1 { font-size: 3.8rem; max-width: 940px; }
+  .hero-deck { font-size: 1.2rem; max-width: 720px; }
+  .byline { font-size: .68rem; gap: 2rem; }
+  h2 { font-size: 2.4rem; }
+  h3 { font-size: 1.35rem; }
+  p { font-size: 1.05rem; }
+  .pull-quote p { font-size: 1.5rem; }
+  .article-body { padding: 5rem 0; }
+  .section-marker { padding-top: 5rem; margin-bottom: 3.5rem; }
+  .figure { margin: 4rem -3rem; padding: 3rem; }
+  .chart-wrap { height: 380px; }
+  .chart-wrap--tall { height: 520px; }
+  .stat-cell { padding: 1.75rem 2.5rem; }
+  .stat-val { font-size: 2.5rem; }
+  .stat-label { font-size: .6rem; }
+  .callout { padding: 2rem 2.5rem; }
+  .callout p { font-size: .95rem; }
+  .compare-card { padding: 1.5rem 2rem; }
+  .playbook-item { grid-template-columns: 4.5rem 1fr; gap: 2.5rem; padding: 2.5rem 0; }
+  .playbook-num { font-size: 3.2rem; }
+  .playbook-title { font-size: 1.25rem; }
+  .playbook-body { font-size: .95rem; }
+  .timeline-item { padding: 1.5rem 0 1.5rem 4rem; }
+  .timeline-body { font-size: .88rem; }
+  .article-footer { padding: 2.5rem 0 5rem; margin-top: 5rem; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.entrance { opacity: 0; transform: translateY(18px); animation: fadeUp .7s cubic-bezier(.16,1,.3,1) forwards; }
+.entrance-d1 { animation-delay: .12s; }
+.entrance-d2 { animation-delay: .24s; }
+.entrance-d3 { animation-delay: .36s; }
+.entrance-d4 { animation-delay: .48s; }
+
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.figure { transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background-color .4s, border-color .4s; }
+@media (hover: hover) and (pointer: fine) {
+  .figure:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.06); }
+}
+.playbook-item { transition: transform .25s ease; }
+.playbook-item:hover { transform: translateX(4px); }
+.callout { transition: transform .3s ease, box-shadow .3s ease; }
+.callout:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.04); }
+.compare-card { transition: transform .25s ease, box-shadow .25s ease; }
+.compare-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* Narrow tablets / large phones — stack philosophy compare cards */
+@media (max-width: 720px) {
+  .figure-compare-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Tablet */
+@media (max-width: 860px) {
+  .masthead-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  /* Home + toggle on row 1; issue meta full width below — avoids crowding */
+  .masthead-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0.85rem 1.5rem;
+    width: 100%;
+    align-items: center;
+  }
+  .masthead-home {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .theme-toggle {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .masthead-actions .issue-meta {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: left;
+  }
+  .container--wide { padding: 0 1.5rem; }
+  .chart-wrap--tall { height: 340px; }
+  /* No horizontal bleed — negative margins cause page-level sideways scroll */
+  .figure {
+    margin: 2.5rem 0;
+    overflow-x: hidden;
+    overflow-y: visible;
+    max-width: 100%;
+  }
+  .figure-scroll {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+  }
+  .figure-scroll svg {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+  .phase-row { flex-direction: column !important; align-items: stretch !important; }
+  .phase-row > div[style*="position:absolute"] { display: none !important; }
+  .phase-row > div[style*="flex:1"] {
+    border: 1px solid var(--border) !important;
+    border-bottom: none !important;
+    border-right: 1px solid var(--border) !important;
+  }
+  .phase-row > div[style*="flex:1"]:last-of-type { border-bottom: 1px solid var(--border) !important; }
+  .phase-row > div[style*="border:2px solid #c8402a"] {
+    border: 2px solid var(--accent) !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  html {
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+  body {
+    overflow-x: hidden;
+  }
+  .container { padding: 0 1.25rem; }
+  .container--wide { padding: 0 1.25rem; }
+
+  /* masthead */
+  .masthead { padding: 1.2rem 0 1rem; }
+  .masthead-inner { gap: 0.9rem; }
+  .masthead-actions { gap: 0.75rem 1.25rem; }
+  .issue-meta { font-size: 0.62rem; line-height: 1.55; }
+  .theme-toggle { width: 22px; height: 22px; font-size: .7rem; }
+
+  /* hero */
+  .hero { padding: 2.5rem 0 2rem; }
+  .hero h1 { font-size: 1.75rem; margin-bottom: 1rem; line-height: 1.12; }
+  .hero-deck { font-size: 0.92rem; margin-bottom: 1.5rem; line-height: 1.55; }
+  .byline { flex-wrap: wrap; gap: 0.4rem 0.75rem; font-size: 0.58rem; }
+  .byline-sep { display: none; }
+
+  /* section markers */
+  .section-marker { padding-top: 2.5rem; margin-bottom: 1.75rem; }
+  .section-tag { display: none; }
+
+  /* article body */
+  .article-body { padding: 2rem 0; }
+  h2 { font-size: 1.4rem; margin-bottom: 1.25rem; }
+  h3 { font-size: 1.05rem; margin: 1.75rem 0 0.75rem; }
+  p { font-size: 0.92rem; line-height: 1.65; margin-bottom: 1.2rem; }
+
+  /* pull quote */
+  .pull-quote { padding-left: 1.25rem; margin: 2rem 0; border-left-width: 2px; }
+  .pull-quote p { font-size: 1.05rem; line-height: 1.4; }
+
+  /* callout */
+  .callout { padding: 1.15rem 1.15rem; margin: 2rem 0; }
+  .callout-label { font-size: 0.56rem; margin-bottom: 0.6rem; }
+  .callout p { font-size: 0.84rem; line-height: 1.6; }
+
+  /* figures — stay in column; no side-scroll or negative margin bleed */
+  .figure {
+    margin: 2rem 0;
+    padding: 1.15rem 1rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  .figure-title { font-size: 0.55rem; margin-bottom: 1rem; }
+  .figure-caption { font-size: 0.74rem; margin-top: 1rem; line-height: 1.5; }
+  .chart-wrap { height: 240px; }
+  .chart-wrap--tall { height: 280px; }
+
+  .figure-scroll {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  .figure-scroll svg {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .figure-compare-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .figure--compare .figure-compare-grid > div {
+    padding: 1.25rem 1.1rem !important;
+  }
+  /* Stack label / value rows in philosophy cards (was cramped side-by-side) */
+  .figure-compare-grid [style*="justify-content:space-between"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.2rem !important;
+  }
+
+  /* stat row — 2x2 grid on mobile */
+  .stat-row { grid-template-columns: repeat(2, 1fr); margin: 2rem 0; }
+  .stat-val { font-size: 1.4rem; }
+  .stat-label { min-height: auto; font-size: 0.52rem; }
+  .stat-sub { font-size: 0.68rem; }
+  .stat-cell { padding: 1rem 1.1rem; }
+
+  /* compare grid — single column */
+  .compare-grid { grid-template-columns: 1fr; }
+  .compare-card { padding: 1rem 1.15rem; }
+  .compare-name { font-size: 0.92rem; margin-bottom: 0.6rem; }
+  .compare-list li { font-size: 0.75rem; }
+
+  /* timeline — tighter on mobile */
+  .timeline::before { left: 16px; }
+  .timeline-item { padding: 1rem 0 1rem 2.75rem; }
+  .timeline-dot { left: 10px; top: 1.3rem; width: 11px; height: 11px; }
+  .timeline-phase { font-size: 0.55rem; }
+  .timeline-title { font-size: 0.88rem; }
+  .timeline-body { font-size: 0.78rem; }
+
+  /* playbook */
+  .playbook-item { grid-template-columns: 2.25rem 1fr; gap: 0.85rem; padding: 1.25rem 0; }
+  .playbook-num { font-size: 1.6rem; }
+  .playbook-label { font-size: 0.55rem; }
+  .playbook-title { font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .playbook-body { font-size: 0.82rem; line-height: 1.6; }
+  .playbook-evidence { gap: 5px; margin-top: 0.6rem; }
+
+  /* pills */
+  .pill { font-size: 0.54rem; padding: 2px 7px; }
+
+  /* data table — horizontal scroll */
+  .data-table { font-size: 0.74rem; }
+  .data-table th { font-size: 0.54rem; padding: 0.4rem 0.5rem; }
+  .data-table td { padding: 0.45rem 0.5rem; }
+
+  /* footer */
+  .article-footer { padding: 1.5rem 0 2.5rem; margin-top: 2rem; }
+  .footer-inner { flex-direction: column; gap: 1rem; }
+  .footer-note { max-width: 100%; font-size: 0.58rem; }
+  .footer-note:last-child { text-align: left; }
+}
+</style>
+<script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark')})();</script>
+</head>
+<body>
+
+<div class="container">
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div>
+        <div class="site-tag">Analysis & Commentary</div>
+        <div class="site-name">Dhyaneesh DS</div>
+      </div>
+      <div class="masthead-actions">
+        <a href="index.html" class="masthead-home">← Home</a>
+        <div class="issue-meta">
+          March 2026<br>
+          Field Report No. 2
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <div class="hero-kicker entrance">Agentic Development</div>
+    <h1 class="entrance entrance-d1">The Autonomous Development Stack: Two Competing Visions</h1>
+    <p class="hero-deck entrance entrance-d2">Agent Orchestrator from Composio and Symphony from OpenAI have independently diagnosed the same problem with how AI-assisted development works. Their prescriptions reveal a genuine philosophical split about who — or what — should be in control.</p>
+    <div class="byline entrance entrance-d3">
+      <span>AO vs Symphony</span>
+      <span class="byline-sep">·</span>
+      <span>Parallel agents, divergent philosophy</span>
+      <span class="byline-sep">·</span>
+      <span>Tested on the ragas repo</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="section-marker reveal">
+  <span class="section-num">01 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">The Problem</span>
+</div>
+
+<h2>The Bottleneck Moved, It Didn't Disappear</h2>
+
+<p>There is an uncomfortable transition happening in how software gets built. AI didn't remove the developer as the central bottleneck. It moved the bottleneck up one abstraction layer. You're no longer writing every line of code. You're spawning agents, checking whether they're stuck, reading CI logs, forwarding review comments, tracking which branch is doing what, and cleaning up afterward. You've become a human orchestrator.</p>
+
+<p>This doesn't scale. And two projects — Agent Orchestrator (AO) from Composio and Symphony from OpenAI — have independently arrived at the same diagnosis. But their prescriptions are radically different, and understanding why reveals a genuine philosophical split about what software development should look like in a world where agents can actually write code.</p>
+
+<p>The "one agent, one terminal" workflow is a dead end. It feels powerful when you're in it: you prompt, the agent writes, you iterate. But the moment you need to handle more than one issue at a time, the model breaks down. You become the router. You track context across branches. You manually forward CI output back to the agent. None of this is in your job description.</p>
+
+<p>Both AO and Symphony attack this with the same architectural idea: parallel agents running in isolated workspaces, each handling one issue, with automated feedback loops that route CI failures and review comments back to the right agent without human intervention. The developer only enters the picture when genuine judgment is required.</p>
+
+<div class="pull-quote reveal">
+  <p>"The question both tools answer differently is more fundamental than architecture: who is actually in control, you or the system?"</p>
+</div>
+
+</div>
+</div>
+
+<!-- FIG 01: Shared architecture -->
+<div class="container--wide">
+  <div class="figure reveal">
+    <div class="figure-title"><span>Fig. 01</span> The shared architectural foundation — where both tools agree</div>
+    <div class="figure-scroll">
+    <svg viewBox="0 0 960 200" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
+      <rect width="960" height="200" fill="#ede9e0"/>
+
+      <!-- 5 steps -->
+      <!-- step boxes -->
+      <rect x="20" y="60" width="160" height="80" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <rect x="210" y="60" width="160" height="80" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <rect x="400" y="60" width="160" height="80" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <rect x="590" y="60" width="160" height="80" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <rect x="780" y="60" width="160" height="80" fill="#c8402a" fill-opacity="0.1" stroke="#c8402a" stroke-width="1.5" rx="2"/>
+
+      <!-- arrows -->
+      <line x1="180" y1="100" x2="208" y2="100" stroke="#d4cfc4" stroke-width="1.5"/>
+      <polygon points="206,95 213,100 206,105" fill="#d4cfc4"/>
+      <line x1="370" y1="100" x2="398" y2="100" stroke="#d4cfc4" stroke-width="1.5"/>
+      <polygon points="396,95 403,100 396,105" fill="#d4cfc4"/>
+      <line x1="560" y1="100" x2="588" y2="100" stroke="#d4cfc4" stroke-width="1.5"/>
+      <polygon points="586,95 593,100 586,105" fill="#d4cfc4"/>
+      <line x1="750" y1="100" x2="778" y2="100" stroke="#d4cfc4" stroke-width="1.5"/>
+      <polygon points="776,95 783,100 776,105" fill="#d4cfc4"/>
+
+      <!-- step numbers -->
+      <text x="30" y="78" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#c8402a" letter-spacing=".1em">01</text>
+      <text x="220" y="78" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#c8402a" letter-spacing=".1em">02</text>
+      <text x="410" y="78" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#c8402a" letter-spacing=".1em">03</text>
+      <text x="600" y="78" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#c8402a" letter-spacing=".1em">04</text>
+      <text x="790" y="78" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#c8402a" letter-spacing=".1em">05</text>
+
+      <!-- step labels -->
+      <text x="100" y="97" font-size="12" fill="#0f0f0e" text-anchor="middle" font-weight="500">Issue appears</text>
+      <text x="100" y="114" font-size="11" fill="#6b6860" text-anchor="middle">in tracker</text>
+      <text x="290" y="97" font-size="12" fill="#0f0f0e" text-anchor="middle" font-weight="500">Agent spawned</text>
+      <text x="290" y="114" font-size="11" fill="#6b6860" text-anchor="middle">in isolated workspace</text>
+      <text x="480" y="97" font-size="12" fill="#0f0f0e" text-anchor="middle" font-weight="500">Code written</text>
+      <text x="480" y="114" font-size="11" fill="#6b6860" text-anchor="middle">PR opened</text>
+      <text x="670" y="97" font-size="12" fill="#0f0f0e" text-anchor="middle" font-weight="500">CI / review</text>
+      <text x="670" y="114" font-size="11" fill="#6b6860" text-anchor="middle">feedback routed back</text>
+      <text x="860" y="97" font-size="12" fill="#c8402a" text-anchor="middle" font-weight="500">Human enters</text>
+      <text x="860" y="114" font-size="11" fill="#c8402a" text-anchor="middle">only here</text>
+
+      <!-- bottom label -->
+      <text x="480" y="185" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6860" text-anchor="middle" letter-spacing=".08em">BOTH AO AND SYMPHONY AGREE ON THIS LOOP</text>
+    </svg>
+    </div>
+    <p class="figure-caption">The architectural foundation is identical. The split comes at step 5 — and in everything that determines what "human enters" actually means in practice.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="section-marker reveal">
+  <span class="section-num">02 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Agent Orchestrator</span>
+</div>
+
+<h2>AO: The Developer Stays in the Loop</h2>
+
+<p>AO ships as a real, installable tool today. One command — <code style="font-family:var(--mono);font-size:0.82em;background:var(--cream);padding:2px 6px;border-radius:2px;">ao start https://github.com/your-org/your-repo</code> — clones the repo, generates a config, launches a dashboard at localhost:3000, and starts an orchestrator agent that manages everything else.</p>
+
+<p>The orchestrator spawns worker agents per issue, each in its own Git worktree with its own branch. Each agent reads code, writes tests, opens PRs. When CI fails, the agent gets the logs and fixes it. When a reviewer leaves comments, the agent addresses them. The loop is tight and the feedback is automatic.</p>
+
+<p>The configuration is explicit and overridable. The <code style="font-family:var(--mono);font-size:0.82em;background:var(--cream);padding:2px 6px;border-radius:2px;">agent-orchestrator.yaml</code> file gives you fine-grained control over every reaction:</p>
+
+</div>
+</div>
+
+<div class="container">
+<div class="code-block">
+<pre><span class="kw">reactions:</span>
+  <span class="kw">ci-failed:</span>
+    <span class="kw">auto:</span> <span class="val">true</span>
+    <span class="kw">action:</span> <span class="str">send-to-agent</span>
+    <span class="kw">retries:</span> <span class="val">2</span>
+  <span class="kw">changes-requested:</span>
+    <span class="kw">auto:</span> <span class="val">true</span>
+    <span class="kw">action:</span> <span class="str">send-to-agent</span>
+    <span class="kw">escalateAfter:</span> <span class="val">30m</span>
+  <span class="kw">approved-and-green:</span>
+    <span class="kw">auto:</span> <span class="val">false</span>  <span class="comment"># flip to true for auto-merge</span>
+    <span class="kw">action:</span> <span class="str">notify</span></pre>
+</div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<p>The plugin architecture is worth studying. Seven abstraction slots — runtime, agent, workspace, tracker, SCM, notifier, and terminal — each independently swappable. You can run agents in tmux or as detached local processes. You can use Claude Code, Codex, Aider, or OpenCode. You can connect to GitHub or Linear. Every interface is defined in TypeScript; a plugin implements one interface and exports a <code style="font-family:var(--mono);font-size:0.82em;background:var(--cream);padding:2px 6px;border-radius:2px;">PluginModule</code>.</p>
+
+<p>The underlying philosophy is explicit. AO inherits what you might call the Claude Code worldview: agents are powerful but still unreliable, humans need visibility and override capability, workflows are messy and evolving. You want to augment your process, not replace it. When things break, they break loudly. CI failures surface on the dashboard. Stuck agents are visible. You intervene, fix, and continue.</p>
+
+<div class="section-marker reveal">
+  <span class="section-num">03 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Symphony</span>
+</div>
+
+<h2>Symphony: The System Replaces You</h2>
+
+<p>Symphony is not a product. It is a specification — a language-agnostic document for building a machine that does software development autonomously. There is no code to install. The README's primary instruction is: tell your favorite coding agent to implement it.</p>
+
+<p>There is an experimental Elixir reference implementation, but the point is the spec itself. You read it, you build your own Symphony in whatever language fits your stack, and you get exactly the system your team needs, nothing more, nothing less.</p>
+
+<p>The execution model is a tight loop: poll an issue tracker for work, dispatch agents into isolated workspaces, validate via CI and checks, report results, repeat. No dashboard required. No hand-holding. The service is a long-running daemon that reads work from Linear, creates per-issue workspaces, and runs Codex app-server sessions inside them indefinitely, without human intervention.</p>
+
+<p>The <code style="font-family:var(--mono);font-size:0.82em;background:var(--cream);padding:2px 6px;border-radius:2px;">WORKFLOW.md</code> contract is where the intelligence lives — version-controlled alongside your code, defining which tracker states trigger dispatch, what the agent prompt looks like, concurrency limits, retry behavior, sandbox policy.</p>
+
+</div>
+</div>
+
+<div class="container">
+<div class="code-block">
+<pre><span class="kw">tracker:</span>
+  <span class="kw">kind:</span> <span class="str">linear</span>
+  <span class="kw">project_slug:</span> <span class="str">my-project</span>
+  <span class="kw">active_states:</span> <span class="val">[Todo, In Progress]</span>
+
+<span class="kw">agent:</span>
+  <span class="kw">max_concurrent_agents:</span> <span class="val">10</span>
+  <span class="kw">max_turns:</span> <span class="val">20</span>
+  <span class="kw">max_retry_backoff_ms:</span> <span class="val">300000</span>
+
+<span class="kw">codex:</span>
+  <span class="kw">command:</span> <span class="str">codex app-server</span>
+  <span class="kw">turn_timeout_ms:</span> <span class="val">3600000</span>
+  <span class="kw">stall_timeout_ms:</span> <span class="val">300000</span>
+<span class="comment">---</span>
+<span class="str">You are working on {{ issue.identifier }}: {{ issue.title }}
+
+{{ issue.description }}
+
+{% if attempt %}
+This is retry attempt {{ attempt }}. Review what was already tried.
+{% endif %}</span></pre>
+</div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<p>The orchestration state machine is sophisticated. Issues move through internal states — Unclaimed, Claimed, Running, RetryQueued, and Released — independent of their tracker states. Retry backoff is exponential. Stall detection kills agents that haven't produced output and queues them for retry. The philosophy is pure autonomous delegation: stop interacting with agents, start managing work.</p>
+
+<div class="section-marker reveal">
+  <span class="section-num">04 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">The Divide</span>
+</div>
+
+<h2>The Philosophical Divide</h2>
+
+<p>These two approaches represent a genuine disagreement, rooted in how Claude Code and Codex have diverged as interaction paradigms.</p>
+
+<p>Claude Code is a tool to be wielded. It lives in your terminal and IDE, acts like a senior developer who understands your codebase, asks clarifying questions, and produces code meant to be maintained long-term. The philosophy is methodical. CLAUDE.md files persist project context. Custom hooks fire on specific events.</p>
+
+<p>Codex is an employee to be managed. You write a well-specified task, Codex executes it in a cloud sandbox, you review results. The philosophy is rapid iteration. Ambiguous prompts produce ambiguous results, which is why harness engineering matters so much. The quality of your specification directly determines the quality of the output.</p>
+
+</div>
+</div>
+
+<!-- FIG 02: Philosophical spectrum -->
+<div class="container--wide">
+  <div class="figure figure--compare reveal">
+    <div class="figure-title"><span>Fig. 02</span> Two philosophies — what each tool believes about the developer's role</div>
+    <div class="figure-compare-grid">
+
+      <!-- AO card -->
+      <div style="background:var(--paper);padding:2rem 2.5rem;">
+        <div style="font-family:var(--mono);font-size:0.58rem;letter-spacing:.12em;color:#2a5fc8;margin-bottom:0.6rem;text-transform:uppercase;">Agent Orchestrator</div>
+        <div style="font-family:var(--serif);font-size:1.5rem;font-weight:700;letter-spacing:-.03em;color:#0f0f0e;margin-bottom:0.4rem;">The developer stays in the loop</div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;">Agents are powerful but unreliable. Humans need visibility and override capability. You want to augment your process, not replace it.</div>
+        <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Developer role</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#0f0f0e;">Supervisor</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Control surface</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#0f0f0e;">Dashboard + YAML</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Agent model</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#0f0f0e;">Claude Code</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Setup</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#2a5fc8;">ao start — today</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Failure mode</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#2a5fc8;">Loud — dashboard alerts</span>
+          </div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:rgba(42,95,200,0.06);border-left:2px solid #2a5fc8;">
+          <div style="font-size:0.78rem;color:#2a5fc8;line-height:1.55;">The off-the-rack suit. Fits most people well. Take it home today.</div>
+        </div>
+      </div>
+
+      <!-- Symphony card -->
+      <div style="background:var(--paper);padding:2rem 2.5rem;">
+        <div style="font-family:var(--mono);font-size:0.58rem;letter-spacing:.12em;color:#c8402a;margin-bottom:0.6rem;text-transform:uppercase;">Symphony</div>
+        <div style="font-family:var(--serif);font-size:1.5rem;font-weight:700;letter-spacing:-.03em;color:#0f0f0e;margin-bottom:0.4rem;">The system replaces you</div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.5;">Stop interacting with agents. Start managing work. You define the system once, precisely, and then get out of the way.</div>
+        <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border);">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Developer role</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#0f0f0e;">Systems designer</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Control surface</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#0f0f0e;">WORKFLOW.md spec</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Agent model</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#0f0f0e;">Codex app-server</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;border-bottom:1px solid var(--border);">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Setup</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#c8402a;">Build the harness first</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;padding:0.6rem 0;">
+            <span style="font-family:var(--mono);font-size:0.56rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;">Failure mode</span>
+            <span style="font-size:0.82rem;font-weight:500;color:#c8402a;">Silent — billing dashboard</span>
+          </div>
+        </div>
+        <div style="margin-top:1.5rem;padding:1rem 1.25rem;background:rgba(200,64,42,0.06);border-left:2px solid #c8402a;">
+          <div style="font-size:0.78rem;color:#c8402a;line-height:1.55;">The exacting bespoke tailor. Perfect when it works. May not work at all.</div>
+        </div>
+      </div>
+
+    </div>
+    <p class="figure-caption">The two tools have forked at the level of assumptions about the developer's role — not just at the implementation level. This is why choosing between them is a philosophical decision, not a technical one.</p>
+  </div>
+</div>
+
+<!-- FIG 03: Comparison table -->
+<div class="container--wide">
+  <div class="figure reveal">
+    <div class="figure-title"><span>Fig. 03</span> Head-to-head comparison</div>
+    <div class="figure-scroll">
+    <svg viewBox="0 0 960 400" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
+      <rect width="960" height="400" fill="#ede9e0"/>
+
+      <!-- header row -->
+      <rect x="20" y="20" width="320" height="50" fill="#ede9e0" rx="1"/>
+      <rect x="345" y="20" width="290" height="50" fill="#2a5fc8" fill-opacity="0.1" stroke="#2a5fc8" stroke-width="1" rx="1"/>
+      <rect x="640" y="20" width="300" height="50" fill="#c8402a" fill-opacity="0.1" stroke="#c8402a" stroke-width="1" rx="1"/>
+
+      <text x="30" y="52" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6860" letter-spacing=".1em">DIMENSION</text>
+      <text x="490" y="42" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#2a5fc8" text-anchor="middle">Agent Orchestrator</text>
+      <text x="790" y="42" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#c8402a" text-anchor="middle">Symphony</text>
+
+      <!-- data rows -->
+      <!-- row heights: 45px each, starting at y=75 -->
+      <!-- dimensions -->
+      <rect x="20" y="75" width="320" height="46" fill="#f5f2ec" rx="1"/>
+      <rect x="345" y="75" width="290" height="46" fill="#ede9e0" rx="1"/>
+      <rect x="640" y="75" width="300" height="46" fill="#ede9e0" rx="1"/>
+      <text x="30" y="104" font-size="12" fill="#6b6860">Developer role</text>
+      <text x="490" y="104" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Supervisor</text>
+      <text x="790" y="104" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Systems designer</text>
+
+      <rect x="20" y="126" width="320" height="46" fill="#ede9e0" rx="1"/>
+      <rect x="345" y="126" width="290" height="46" fill="#f5f2ec" rx="1"/>
+      <rect x="640" y="126" width="300" height="46" fill="#f5f2ec" rx="1"/>
+      <text x="30" y="155" font-size="12" fill="#6b6860">Control surface</text>
+      <text x="490" y="155" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Dashboard + YAML</text>
+      <text x="790" y="155" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">WORKFLOW.md spec</text>
+
+      <rect x="20" y="177" width="320" height="46" fill="#f5f2ec" rx="1"/>
+      <rect x="345" y="177" width="290" height="46" fill="#ede9e0" rx="1"/>
+      <rect x="640" y="177" width="300" height="46" fill="#ede9e0" rx="1"/>
+      <text x="30" y="206" font-size="12" fill="#6b6860">Agent philosophy</text>
+      <text x="490" y="206" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Claude Code</text>
+      <text x="790" y="206" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Codex</text>
+
+      <rect x="20" y="228" width="320" height="46" fill="#ede9e0" rx="1"/>
+      <rect x="345" y="228" width="290" height="46" fill="#f5f2ec" rx="1"/>
+      <rect x="640" y="228" width="300" height="46" fill="#f5f2ec" rx="1"/>
+      <text x="30" y="257" font-size="12" fill="#6b6860">Code shipped</text>
+      <text x="490" y="257" font-size="13" fill="#2a5fc8" text-anchor="middle" font-weight="500">Yes — npm package</text>
+      <text x="790" y="257" font-size="13" fill="#c8402a" text-anchor="middle" font-weight="500">No — spec only</text>
+
+      <rect x="20" y="279" width="320" height="46" fill="#f5f2ec" rx="1"/>
+      <rect x="345" y="279" width="290" height="46" fill="#ede9e0" rx="1"/>
+      <rect x="640" y="279" width="300" height="46" fill="#ede9e0" rx="1"/>
+      <text x="30" y="308" font-size="12" fill="#6b6860">Failure visibility</text>
+      <text x="490" y="308" font-size="13" fill="#2a5fc8" text-anchor="middle" font-weight="500">High — dashboard + alerts</text>
+      <text x="790" y="308" font-size="13" fill="#c8402a" text-anchor="middle" font-weight="500">Depends on your spec</text>
+
+      <rect x="20" y="330" width="320" height="46" fill="#ede9e0" rx="1"/>
+      <rect x="345" y="330" width="290" height="46" fill="#f5f2ec" rx="1"/>
+      <rect x="640" y="330" width="300" height="46" fill="#f5f2ec" rx="1"/>
+      <text x="30" y="359" font-size="12" fill="#6b6860">Setup cost</text>
+      <text x="490" y="359" font-size="13" fill="#2a5fc8" text-anchor="middle" font-weight="500">Low — ao start</text>
+      <text x="790" y="359" font-size="13" fill="#c8402a" text-anchor="middle" font-weight="500">High — build the harness</text>
+    </svg>
+    </div>
+    <p class="figure-caption">AO and Symphony differ on nearly every practical dimension while sharing the same architectural vision. The right choice is determined by your team's maturity with harness engineering, not by which is technically superior.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="section-marker reveal">
+  <span class="section-num">05 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">The Hard Lesson</span>
+</div>
+
+<h2>Symphony's Silent Failure</h2>
+
+<p>During real-world testing on the ragas repository, both tools were run against the same set of issues. AO completed the workflow as expected. Symphony hit a specific failure: the agent couldn't send a completion signal back to Linear after finishing its work.</p>
+
+<p>What happened next is instructive. There was no alert. No stop condition fired. The orchestrator, seeing the issue still in an active state because the agent failed to transition it, concluded that work remained and scheduled another turn. Which also failed to send the completion signal. Which triggered another retry. The system sat in a loop, burning tokens, with no external indication that anything was wrong.</p>
+
+<div class="pull-quote reveal">
+  <p>"AO fails in ways humans can see. Symphony can fail in ways that are only visible on your cloud billing dashboard."</p>
+</div>
+
+<p>This is not a bug in Symphony's design. It is an inherent property of fully autonomous systems. The spec is explicit about trust boundary assumptions: implementations must define their own posture on approval policies, sandboxing, and operator-confirmation requirements. It warns extensively about harness hardening. But it cannot write those stop conditions for you.</p>
+
+<p>Symphony's spec does include stall detection. If <code style="font-family:var(--mono);font-size:0.82em;background:var(--cream);padding:2px 6px;border-radius:2px;">stall_timeout_ms</code> elapses without agent output, the worker is killed and retried. But a stall on the completion signal does not look like a stall to the orchestrator. The agent finished its turn. The issue is still active. The system behaves exactly as designed, indefinitely.</p>
+
+</div>
+</div>
+
+<!-- FIG 04: Symphony state machine -->
+<div class="container--wide">
+  <div class="figure reveal">
+    <div class="figure-title"><span>Fig. 04</span> Symphony orchestration state machine — and where the silent loop occurs</div>
+    <div class="figure-scroll">
+    <svg viewBox="0 0 960 420" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
+      <rect width="960" height="420" fill="#ede9e0"/>
+
+      <!-- happy path label at top -->
+      <text x="640" y="32" font-size="11" fill="#6b6860" text-anchor="middle" font-style="italic">happy path — signal sent successfully to Linear</text>
+      <path d="M 455 90 C 455 50 815 50 815 90" stroke="#d4cfc4" stroke-width="1.5" fill="none" stroke-dasharray="5,4"/>
+      <polygon points="813,88 818,96 823,88" fill="#d4cfc4"/>
+
+      <!-- STATE BOXES — y=90, height=64 -->
+      <rect x="20" y="90" width="150" height="64" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <text x="95" y="119" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Unclaimed</text>
+      <text x="95" y="137" font-size="11" fill="#6b6860" text-anchor="middle">waiting for work</text>
+
+      <rect x="210" y="90" width="150" height="64" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <text x="285" y="119" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Claimed</text>
+      <text x="285" y="137" font-size="11" fill="#6b6860" text-anchor="middle">assigned to agent</text>
+
+      <rect x="400" y="90" width="150" height="64" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <text x="475" y="119" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Running</text>
+      <text x="475" y="137" font-size="11" fill="#6b6860" text-anchor="middle">agent working</text>
+
+      <rect x="590" y="90" width="160" height="64" fill="#c8402a" fill-opacity="0.07" stroke="#c8402a" stroke-width="1.5" stroke-dasharray="6,3" rx="2"/>
+      <text x="670" y="119" font-size="13" fill="#c8402a" text-anchor="middle" font-weight="500">RetryQueued</text>
+      <text x="670" y="137" font-size="11" fill="#c8402a" text-anchor="middle">completion signal failed</text>
+
+      <rect x="790" y="90" width="150" height="64" fill="#f5f2ec" stroke="#d4cfc4" stroke-width="1" rx="2"/>
+      <text x="865" y="119" font-size="13" fill="#0f0f0e" text-anchor="middle" font-weight="500">Released</text>
+      <text x="865" y="137" font-size="11" fill="#6b6860" text-anchor="middle">work complete</text>
+
+      <!-- forward arrows -->
+      <line x1="170" y1="122" x2="208" y2="122" stroke="#d4cfc4" stroke-width="1.5"/>
+      <polygon points="206,117 214,122 206,127" fill="#d4cfc4"/>
+
+      <line x1="360" y1="122" x2="398" y2="122" stroke="#d4cfc4" stroke-width="1.5"/>
+      <polygon points="396,117 404,122 396,127" fill="#d4cfc4"/>
+
+      <!-- Running → RetryQueued (the problem path) -->
+      <line x1="550" y1="122" x2="588" y2="122" stroke="#c8402a" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <polygon points="586,117 594,122 586,127" fill="#c8402a"/>
+
+      <!-- RETRY LOOP — big arc below with plenty of room -->
+      <path d="M 670 154 C 670 230 475 230 475 154" stroke="#c8402a" stroke-width="1.5" fill="none"/>
+      <polygon points="473,156 477,148 481,156" fill="#c8402a"/>
+
+      <!-- retry label on the arc -->
+      <text x="572" y="218" font-size="11" fill="#c8402a" text-anchor="middle" font-weight="500">retry loop</text>
+      <text x="572" y="235" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#c8402a" text-anchor="middle">delay = min(10000 × 2^(n−1), max_ms)</text>
+
+      <!-- SILENT FAILURE CALLOUT — well below, with breathing room -->
+      <rect x="160" y="280" width="640" height="100" fill="#c8402a" fill-opacity="0.05" stroke="#c8402a" stroke-width="1" rx="2"/>
+
+      <!-- connecting line from loop to callout -->
+      <line x1="572" y1="244" x2="572" y2="278" stroke="#c8402a" stroke-width="1" stroke-dasharray="3,3"/>
+
+      <text x="480" y="316" font-family="'IBM Plex Mono', monospace" font-size="9" letter-spacing=".1em" fill="#c8402a" text-anchor="middle" text-transform="uppercase">THE SILENT FAILURE</text>
+      <text x="480" y="339" font-size="12" fill="#c8402a" text-anchor="middle" font-weight="500">No external signal this loop is running.</text>
+      <text x="480" y="358" font-size="11" fill="#c8402a" text-anchor="middle">The orchestrator behaves exactly as designed. The only evidence is your cloud billing dashboard.</text>
+    </svg>
+    </div>
+    <p class="figure-caption">The silent failure loop: the agent completes its turn but can't send the completion signal to Linear. The orchestrator sees the issue still active, schedules another turn. Repeat indefinitely, burning tokens.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="section-marker reveal">
+  <span class="section-num">06 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Decision Guide</span>
+</div>
+
+<h2>When to Use Each</h2>
+
+<p>The choice between AO and Symphony is not a performance comparison. It's a question of where your team sits on the control-versus-autonomy spectrum, and how much engineering time you're willing to invest before getting value.</p>
+
+</div>
+</div>
+
+<div class="container--wide">
+  <div class="figure reveal">
+    <div class="figure-title"><span>Fig. 05</span> Decision framework — which tool fits your situation</div>
+    <div class="figure-scroll">
+    <svg viewBox="0 0 960 320" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
+      <rect width="960" height="320" fill="#ede9e0"/>
+
+      <!-- AO column -->
+      <rect x="20" y="20" width="440" height="44" fill="#2a5fc8" fill-opacity="0.12" stroke="#2a5fc8" stroke-width="1.5" rx="2"/>
+      <text x="240" y="48" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#2a5fc8" text-anchor="middle">Use Agent Orchestrator when...</text>
+
+      <!-- Symphony column -->
+      <rect x="500" y="20" width="440" height="44" fill="#c8402a" fill-opacity="0.1" stroke="#c8402a" stroke-width="1.5" rx="2"/>
+      <text x="720" y="48" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#c8402a" text-anchor="middle">Use Symphony when...</text>
+
+      <!-- AO reasons -->
+      <text x="36" y="90" font-size="12" fill="#0f0f0e">→  You want results this week, not after harness engineering</text>
+      <text x="36" y="120" font-size="12" fill="#0f0f0e">→  Your team uses Claude Code or wants agent-agnostic flexibility</text>
+      <text x="36" y="150" font-size="12" fill="#0f0f0e">→  Your workflows are still evolving and absorbing changes</text>
+      <text x="36" y="180" font-size="12" fill="#0f0f0e">→  You need visibility into what agents are doing and why</text>
+      <text x="36" y="210" font-size="12" fill="#0f0f0e">→  You are doing production development, not experiments</text>
+
+      <!-- Symphony reasons -->
+      <text x="516" y="90" font-size="12" fill="#0f0f0e">→  You've bought into the Codex harness engineering model</text>
+      <text x="516" y="120" font-size="12" fill="#0f0f0e">→  You can write precise, stable task specifications</text>
+      <text x="516" y="150" font-size="12" fill="#0f0f0e">→  You're willing to invest real engineering time upfront</text>
+      <text x="516" y="180" font-size="12" fill="#0f0f0e">→  You have robust monitoring independent of Symphony</text>
+      <text x="516" y="210" font-size="12" fill="#0f0f0e">→  You're starting a new project, not retrofitting an old one</text>
+
+      <!-- divider -->
+      <line x1="480" y1="20" x2="480" y2="230" stroke="#d4cfc4" stroke-width="1"/>
+
+      <!-- bottom verdict -->
+      <rect x="20" y="248" width="440" height="52" fill="#2a5fc8" fill-opacity="0.07" rx="2"/>
+      <text x="240" y="270" font-size="12" fill="#2a5fc8" text-anchor="middle" font-weight="500">Correct default for almost every team</text>
+      <text x="240" y="288" font-size="11" fill="#6b6860" text-anchor="middle">doing AI-augmented development today</text>
+
+      <rect x="500" y="248" width="440" height="52" fill="#c8402a" fill-opacity="0.06" rx="2"/>
+      <text x="720" y="270" font-size="12" fill="#c8402a" text-anchor="middle" font-weight="500">A bet on how fast agent trust gets established</text>
+      <text x="720" y="288" font-size="11" fill="#6b6860" text-anchor="middle">valuable if you need a perfectly tailored system</text>
+    </svg>
+    </div>
+    <p class="figure-caption">AO is the safe default. Symphony is the right choice when you have the engineering discipline to implement it correctly and the monitoring infrastructure to know when it's failing.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="section-marker reveal">
+  <span class="section-num">07 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">The Bigger Picture</span>
+</div>
+
+<h2>The Road and the Destination</h2>
+
+<p>Both tools point at the same trajectory. Developer work is moving from writing code to designing systems that produce code. That shift is not gradual, and the architectural decisions you make now about how agents interact with your codebase, your tracker, and your CI system will compound over time.</p>
+
+<p>AO lets you ease into that shift. You start with <code style="font-family:var(--mono);font-size:0.82em;background:var(--cream);padding:2px 6px;border-radius:2px;">ao start</code>, get agents working on real issues, and incrementally automate more of the feedback loop. The human stays in the loop, supervising at higher and higher levels of abstraction. Symphony demands the shift upfront — you cannot run it without committing to harness engineering, to the idea that your entire development workflow can be specified precisely enough for a machine to execute it without supervision.</p>
+
+<p>There is one thing the tailor analogy misses. The off-the-rack suit can be tailored. AO's plugin architecture and explicit YAML configuration are the same ingredients Symphony asks you to build from scratch. Every reaction that currently reads <code style="font-family:var(--mono);font-size:0.82em;background:var(--cream);padding:2px 6px;border-radius:2px;">auto: false</code> is a dial you can turn. The scaffold for a Symphony-style workflow already exists inside AO, it's just not switched on by default.</p>
+
+<div class="pull-quote reveal">
+  <p>"Symphony describes a destination. AO could build a road that leads there gracefully."</p>
+</div>
+
+<p>If AO can build a system where the orchestrator itself can slowly understand the grand schemes of the project and make a self-improving spec by figuring out the intention behind the changes it is making, then we have a product that can gently guide developers through the current tumultuous AI agent landscape.</p>
+
+<p>The question Symphony forces you to sit with is worth asking regardless of which tool you use. If you had to specify your entire development workflow precisely enough for a machine to execute it without any human intervention, could you? If the answer is no, that gap is worth closing. Not because Symphony is ready for production everywhere, but because closing the gap is the work.</p>
+
+</div>
+</div>
+
+<!-- FIG 06: Trajectory -->
+<div class="container--wide">
+  <div class="figure reveal">
+    <div class="figure-title"><span>Fig. 06</span> The shared trajectory — where both tools are pointing</div>
+    <div class="figure-scroll">
+    <svg viewBox="0 0 960 200" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
+      <rect width="960" height="200" fill="#ede9e0"/>
+
+      <!-- timeline line -->
+      <line x1="60" y1="90" x2="900" y2="90" stroke="#d4cfc4" stroke-width="2"/>
+      <polygon points="898,84 907,90 898,96" fill="#d4cfc4"/>
+
+      <!-- present marker -->
+      <circle cx="180" cy="90" r="8" fill="#2a5fc8" fill-opacity="0.2" stroke="#2a5fc8" stroke-width="2"/>
+      <circle cx="180" cy="90" r="3" fill="#2a5fc8"/>
+      <text x="180" y="60" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#2a5fc8" text-anchor="middle" letter-spacing=".08em">NOW</text>
+      <text x="180" y="115" font-size="11" fill="#6b6860" text-anchor="middle">One agent</text>
+      <text x="180" y="130" font-size="11" fill="#6b6860" text-anchor="middle">one terminal</text>
+      <text x="180" y="145" font-size="11" fill="#6b6860" text-anchor="middle">human orchestrates</text>
+
+      <!-- AO marker -->
+      <circle cx="420" cy="90" r="8" fill="#2a5fc8" fill-opacity="0.2" stroke="#2a5fc8" stroke-width="2"/>
+      <circle cx="420" cy="90" r="3" fill="#2a5fc8"/>
+      <text x="420" y="60" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#2a5fc8" text-anchor="middle" letter-spacing=".08em">AO NEAR FUTURE</text>
+      <text x="420" y="115" font-size="11" fill="#6b6860" text-anchor="middle">Developer supervises</text>
+      <text x="420" y="130" font-size="11" fill="#6b6860" text-anchor="middle">fleets of agents</text>
+      <text x="420" y="145" font-size="11" fill="#6b6860" text-anchor="middle">merging PRs, setting direction</text>
+
+      <!-- Symphony marker -->
+      <circle cx="720" cy="90" r="8" fill="#c8402a" fill-opacity="0.2" stroke="#c8402a" stroke-width="2"/>
+      <circle cx="720" cy="90" r="3" fill="#c8402a"/>
+      <text x="720" y="60" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#c8402a" text-anchor="middle" letter-spacing=".08em">SYMPHONY HORIZON</text>
+      <text x="720" y="115" font-size="11" fill="#6b6860" text-anchor="middle">Developer as systems architect</text>
+      <text x="720" y="130" font-size="11" fill="#6b6860" text-anchor="middle">writing specs that become</text>
+      <text x="720" y="145" font-size="11" fill="#6b6860" text-anchor="middle">self-running software factories</text>
+
+      <!-- time label -->
+      <text x="900" y="75" font-family="'IBM Plex Mono', monospace" font-size="9" fill="#6b6860" text-anchor="middle" letter-spacing=".08em">TIME</text>
+    </svg>
+    </div>
+    <p class="figure-caption">Both pictures are real. The difference is timing, and that depends entirely on how much further agents need to improve before you can trust them to operate without supervision.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-footer">
+  <div class="footer-inner">
+    <div class="footer-note">
+      Agent Orchestrator — github.com/ComposioHQ/agent-orchestrator<br>
+      Symphony spec — github.com/openai/symphony<br>
+      Testing conducted on the ragas repository, March 2026.
+    </div>
+    <div class="footer-note" style="text-align:right">
+      Both tools should be treated with appropriate caution<br>
+      in production environments. Read the trust boundary<br>
+      documentation before deploying in consequential contexts.
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+function toggleTheme(){
+  var h=document.documentElement,d=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',d?'light':'dark');
+  localStorage.setItem('theme',d?'light':'dark');
+}
+
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}
+    });
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+})();
+</script>
+
+</body>
+</html>
+
