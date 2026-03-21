@@ -91,9 +91,9 @@ body {
   transition: background-color .4s, color .4s;
 }
 
-/* ── LAYOUT ── */
-.container { max-width: 800px; margin: 0 auto; padding: 0 2rem; }
-.container--wide { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+/* ── LAYOUT ── (main column widths match index.html for consistent real estate) */
+.container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+.container--wide { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
 
 /* ── HEADER ── */
 .masthead {
@@ -175,7 +175,7 @@ body {
   line-height: 1.08;
   letter-spacing: -.04em;
   margin-bottom: 1.75rem;
-  max-width: 780px;
+  max-width: 820px;
 }
 .hero h1 em {
   font-style: normal;
@@ -186,7 +186,7 @@ body {
   font-size: 1.1rem;
   font-weight: 300;
   color: var(--muted);
-  max-width: 580px;
+  max-width: 640px;
   line-height: 1.6;
   margin-bottom: 2.5rem;
 }
@@ -540,6 +540,9 @@ p strong { font-weight: 500; }
 svg { max-width: 100%; display: block; }
 .figure svg { width: 100%; height: auto; }
 
+.figure-diagram-desktop { display: block; }
+.figure-diagram-mobile { display: none; width: 100%; }
+
 /* ── FOOTER ── */
 .article-footer {
   border-top: 2px solid var(--ink);
@@ -565,10 +568,10 @@ svg { max-width: 100%; display: block; }
 
 /* ── LARGE DESKTOP ── */
 @media (min-width: 1100px) {
-  .container { max-width: 920px; }
-  .container--wide { max-width: 1280px; }
-  .hero h1 { max-width: 880px; }
-  .hero-deck { max-width: 680px; }
+  .container { max-width: 1060px; }
+  .container--wide { max-width: 1330px; }
+  .hero h1 { max-width: 1000px; }
+  .hero-deck { max-width: 740px; }
   .stat-row { margin: 3rem 0; }
   .stat-val { font-size: 2.2rem; }
   .stat-cell { padding: 1.5rem 2rem; }
@@ -580,11 +583,11 @@ svg { max-width: 100%; display: block; }
 
 /* ── ULTRAWIDE ── */
 @media (min-width: 1440px) {
-  .container { max-width: 1000px; padding: 0 3rem; }
-  .container--wide { max-width: 1400px; padding: 0 3rem; }
+  .container { max-width: 1240px; padding: 0 3rem; }
+  .container--wide { max-width: 1480px; padding: 0 3rem; }
   .hero { padding: 6rem 0 3.5rem; }
-  .hero h1 { font-size: 3.8rem; max-width: 940px; }
-  .hero-deck { font-size: 1.2rem; max-width: 720px; }
+  .hero h1 { font-size: 3.8rem; max-width: 1080px; }
+  .hero-deck { font-size: 1.2rem; max-width: 820px; }
   .byline { font-size: .68rem; gap: 2rem; }
   h2 { font-size: 2.4rem; }
   h3 { font-size: 1.35rem; }
@@ -727,13 +730,62 @@ svg { max-width: 100%; display: block; }
 
   /* figures — bleed edge to edge */
   .figure { margin: 2rem -1.25rem; padding: 1.15rem; border-radius: 0; border-left: none; border-right: none; overflow-x: hidden; overflow-y: visible; }
-  .figure-title { font-size: 0.55rem; margin-bottom: 1rem; }
+  .figure-title { font-size: 0.65rem; margin-bottom: 1rem; line-height: 1.45; }
   .figure-caption { font-size: 0.74rem; margin-top: 1rem; line-height: 1.5; }
   .chart-wrap { height: 240px; }
   .chart-wrap--tall { height: 280px; }
 
   /* SVG scales to column width — no horizontal scroll */
   .figure svg { min-width: 0; width: 100%; max-width: 100%; height: auto; }
+
+  .figure-diagram-desktop { display: none !important; }
+  .figure-diagram-mobile { display: block !important; }
+
+  .openclaw-pf-card {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.9rem 1rem;
+    margin-bottom: 0.65rem;
+    text-align: left;
+  }
+  .openclaw-pf-card h4 {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+  .openclaw-pf-era {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    color: var(--muted);
+    margin-bottom: 0.55rem;
+  }
+  .openclaw-pf-paras { font-size: 0.86rem; color: var(--ink); line-height: 1.55; margin-bottom: 0.5rem; }
+  .openclaw-pf-lesson { font-size: 0.86rem; color: var(--muted); line-height: 1.55; }
+  .openclaw-pf-lesson strong { color: var(--accent); font-weight: 500; }
+
+  .openclaw-matrix-mobile h4 {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin: 0.85rem 0 0.4rem;
+  }
+  .openclaw-matrix-mobile h4:first-child { margin-top: 0; }
+  .openclaw-matrix-mobile ul { list-style: none; margin: 0; padding: 0; font-size: 0.88rem; line-height: 1.55; color: var(--ink); }
+  .openclaw-matrix-mobile li { margin-bottom: 0.35rem; padding-left: 0.5rem; border-left: 3px solid var(--border); }
+  .openclaw-matrix-mobile li.m-mx-win { border-left-color: var(--accent); }
+  .openclaw-matrix-mobile li.m-mx-def { border-left-color: var(--accent2); }
+  .openclaw-matrix-mobile li.m-mx-wave { border-left-color: var(--muted); }
+  .openclaw-matrix-mobile li.m-mx-risk { border-left-color: var(--accent); border-left-style: dashed; }
+
+  .openclaw-fig5 .phase-row > div[style*="flex:1"] { padding: 0 0 1.25rem !important; width: 100% !important; max-width: 100% !important; }
+  .openclaw-fig5 [style*="padding:18px 20px"] { padding: 16px 14px !important; }
+  .openclaw-fig5 [style*="font-size:0.8rem"] { font-size: 0.9rem !important; line-height: 1.65 !important; }
+  .openclaw-fig5 [style*="font-size:1.2rem"] { font-size: 1.15rem !important; }
+  .openclaw-fig5 [style*="font-size:9px"] { font-size: 0.58rem !important; }
 
   /* stat row — 2x2 grid on mobile */
   .stat-row { grid-template-columns: repeat(2, 1fr); margin: 2rem 0; }
@@ -977,6 +1029,7 @@ svg { max-width: 100%; display: block; }
 <div class="container--wide">
   <div class="figure reveal">
     <div class="figure-title"><span>Fig. 04</span> Historical platform analogues, structural parallels to OpenClaw</div>
+    <div class="figure-diagram-desktop">
     <svg viewBox="0 0 1000 730" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
 
       <rect width="1000" height="730" fill="#f5f2ec"/>
@@ -1053,6 +1106,39 @@ svg { max-width: 100%; display: block; }
       <text x="640" y="600" font-size="12.5" fill="#6b6860">to replace them. Build for star rate,</text>
       <text x="640" y="619" font-size="12.5" fill="#6b6860">not download count.</text>
     </svg>
+    </div>
+    <div class="figure-diagram-mobile" aria-label="Historical platform analogues">
+      <div class="openclaw-pf-card">
+        <h4>WordPress Plugins</h4>
+        <div class="openclaw-pf-era">2005–2012</div>
+        <div class="openclaw-pf-paras">Creator dominance and trust moats; meta-plugins (SEO, caching, security) win; version cadence sustains position; power-law locked in within ~2 years.</div>
+        <p class="openclaw-pf-lesson"><strong>Lesson:</strong> The top-10 list barely changes for years. First-mover plus trust is a near-permanent moat without platform intervention.</p>
+      </div>
+      <div class="openclaw-pf-card">
+        <h4>iOS App Store</h4>
+        <div class="openclaw-pf-era">2008–2012</div>
+        <div class="openclaw-pf-paras">Power-law downloads from day one; utility beats novelty; star ratings gamed early; poor discovery means the rich get richer.</div>
+        <p class="openclaw-pf-lesson"><strong>Lesson:</strong> Without better discovery, good new skills stay buried. ClawHub needs curation or a verified tier before the long tail suffocates.</p>
+      </div>
+      <div class="openclaw-pf-card">
+        <h4>Shopify App Store</h4>
+        <div class="openclaw-pf-era">2009–2021</div>
+        <div class="openclaw-pf-paras">B2B installs tied to real revenue; connector tier dominates; tens of thousands of apps; platform absorbs winners as native features.</div>
+        <p class="openclaw-pf-lesson"><strong>Lesson:</strong> API Gateway (#8) is the connector analogue. When paid skills arrive, B2B utility skills can command real fees.</p>
+      </div>
+      <div class="openclaw-pf-card">
+        <h4>Chrome Extensions</h4>
+        <div class="openclaw-pf-era">2010–2016</div>
+        <div class="openclaw-pf-paras">Security tools stick early; creator trust drives installs; malicious-extension waves and a Google crackdown reshaped the market.</div>
+        <p class="openclaw-pf-lesson"><strong>Lesson:</strong> A high-profile malicious skill incident is plausible. MoltGuard (#21) and the nonSuspicious filter signal this arc.</p>
+      </div>
+      <div class="openclaw-pf-card">
+        <h4>npm Registry</h4>
+        <div class="openclaw-pf-era">2010–present</div>
+        <div class="openclaw-pf-paras">Download inflation is endemic; stars-to-downloads ratio is the real signal; massive long tail with extreme concentration at the top.</div>
+        <p class="openclaw-pf-lesson"><strong>Lesson:</strong> Downloads get deprioritised; “active installs” style metrics replace them. Build for star rate, not raw download count.</p>
+      </div>
+    </div>
     <p class="figure-caption">Each historical platform offers a distinct warning. The intersection of all five is the OpenClaw trajectory: creator moats harden, discovery fails, a security incident triggers platform intervention, and monetisation reshuffles everything.</p>
   </div>
 </div>
@@ -1155,7 +1241,7 @@ svg { max-width: 100%; display: block; }
 
 <!-- TRAJECTORY SVG -->
 <div class="container--wide">
-  <div class="figure reveal">
+  <div class="figure reveal openclaw-fig5">
     <div class="figure-title"><span>Fig. 05</span> Predicted OpenClaw market trajectory, three phases</div>
 
     <!-- Timeline connector bar -->
@@ -1341,6 +1427,7 @@ svg { max-width: 100%; display: block; }
 <div class="container--wide">
   <div class="figure reveal">
     <div class="figure-title"><span>Fig. 06</span> Strategic opportunity matrix, durability vs current demand</div>
+    <div class="figure-diagram-desktop">
     <!-- HTML bubble chart: position bubbles via % on a relative container -->
     <div class="phase-row" style="display:flex;gap:0;align-items:stretch;">
 
@@ -1451,6 +1538,30 @@ svg { max-width: 100%; display: block; }
         </div>
 
       </div>
+    </div>
+    </div>
+    <div class="figure-diagram-mobile openclaw-matrix-mobile" aria-label="Strategic matrix by quadrant">
+      <h4>High demand, high durability — win here</h4>
+      <ul>
+        <li class="m-mx-win">API Gateway</li>
+        <li class="m-mx-win">Chinese market</li>
+      </ul>
+      <h4>Low demand, high durability — defensive / emerging</h4>
+      <ul>
+        <li class="m-mx-def">MoltGuard</li>
+        <li class="m-mx-def">Platform tooling</li>
+      </ul>
+      <h4>High demand, lower durability — ride the wave</h4>
+      <ul>
+        <li class="m-mx-wave">Office Docs</li>
+        <li class="m-mx-wave">Browser automation</li>
+        <li class="m-mx-wave">Image generation</li>
+      </ul>
+      <h4>High demand, platform risk</h4>
+      <ul>
+        <li class="m-mx-risk">Self-improvement meta-skills (platform may absorb)</li>
+      </ul>
+      <p style="font-size:0.82rem;color:var(--muted);margin:0.75rem 0 0;line-height:1.55;">Same legend as desktop: solid orange = priority build; solid blue = defensive; grey = ride the wave; dashed = platform absorption risk.</p>
     </div>
     <p class="figure-caption">The strategic sweet spot is the top-right quadrant: skills with strong current demand that are also platform-proof because they depend on external relationships (APIs, regional knowledge, compliance frameworks) the model cannot absorb through training.</p>
   </div>
