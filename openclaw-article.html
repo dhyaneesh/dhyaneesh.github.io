@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Power Law of Agent Plugins: What OpenClaw Tells Us About the Future of AI Extensions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --ink: #0f0f0e;
+  --paper: #f5f2ec;
+  --cream: #ede9e0;
+  --accent: #c8402a;
+  --accent2: #2a5fc8;
+  --muted: #6b6860;
+  --border: #d4cfc4;
+  --serif: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 18px; scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ── */
+.container { max-width: 800px; margin: 0 auto; padding: 0 2rem; }
+.container--wide { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+
+/* ── HEADER ── */
+.masthead {
+  border-bottom: 2px solid var(--ink);
+  padding: 1.5rem 0 1rem;
+  margin-bottom: 0;
+}
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.site-tag {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.site-name {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.issue-meta {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 5rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+}
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.hero-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -.04em;
+  margin-bottom: 1.75rem;
+  max-width: 780px;
+}
+.hero h1 em {
+  font-style: normal;
+  font-weight: 900;
+  color: var(--accent);
+}
+.hero-deck {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 580px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+.byline {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: .05em;
+}
+.byline-sep { color: var(--border); }
+
+/* ── ARTICLE BODY ── */
+.article-body {
+  padding: 4rem 0;
+}
+
+/* ── SECTION HEADERS ── */
+.section-marker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding-top: 4rem;
+}
+.section-marker:first-child { padding-top: 0; }
+.section-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--accent);
+  letter-spacing: .1em;
+  min-width: 40px;
+}
+.section-rule { flex: 1; height: 1px; background: var(--border); }
+.section-tag {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  margin-bottom: 1.5rem;
+}
+h3 {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -.015em;
+  margin: 2.5rem 0 1rem;
+}
+
+p {
+  margin-bottom: 1.4rem;
+  font-size: 1rem;
+  font-weight: 300;
+}
+p strong { font-weight: 500; }
+
+/* ── PULL QUOTE ── */
+.pull-quote {
+  border-left: 3px solid var(--accent);
+  padding: 0.5rem 0 0.5rem 2rem;
+  margin: 3rem 0;
+}
+.pull-quote p {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 300;
+  font-style: normal;
+  line-height: 1.45;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin: 0;
+}
+
+/* ── CALLOUT BOX ── */
+.callout {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1.5rem 2rem;
+  margin: 2.5rem 0;
+}
+.callout-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+.callout p { font-size: 0.9rem; margin-bottom: 0.75rem; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ── FIGURES / DIAGRAMS ── */
+.figure {
+  margin: 3rem -1rem;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: 2px;
+}
+.figure-title {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.figure-title span { color: var(--accent); }
+.figure-caption {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 1.25rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ── CHARTS ── */
+.chart-wrap { position: relative; height: 320px; }
+.chart-wrap--tall { height: 420px; }
+
+/* ── DATA TABLE ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin: 1rem 0;
+}
+.data-table th {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1.5px solid var(--ink);
+  text-align: left;
+  font-weight: 400;
+}
+.data-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 300;
+}
+.data-table td:nth-child(1) { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+.data-table td:nth-child(2) { font-weight: 500; }
+.data-table td.num { font-family: var(--mono); font-size: 0.75rem; text-align: right; }
+.data-table td.hl { color: var(--accent); font-weight: 500; }
+
+/* ── STAT CALLOUTS ── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+.stat-cell {
+  background: var(--paper);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  min-height: 2.4em;
+}
+.stat-val {
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
+.stat-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+/* ── COMPARISON GRID ── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.compare-card {
+  background: var(--paper);
+  padding: 1.25rem 1.5rem;
+}
+.compare-era {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: .08em;
+  margin-bottom: 0.4rem;
+}
+.compare-name {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.compare-list { list-style: none; }
+.compare-list li {
+  font-size: 0.78rem;
+  font-weight: 300;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.compare-list li:last-child { border-bottom: none; }
+.compare-list li::before {
+  content: '→';
+  font-size: 0.7rem;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.05rem;
+}
+
+/* ── PHASE TIMELINE ── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 2rem 0;
+  position: relative;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+.timeline-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.25rem 0 1.25rem 3.5rem;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-dot {
+  position: absolute;
+  left: 14px;
+  top: 1.6rem;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--border);
+}
+.timeline-dot.active { border-color: var(--accent); background: var(--accent); }
+.timeline-phase {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+}
+.timeline-title {
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+.timeline-body { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+
+/* ── PLAYBOOK ── */
+.playbook-item {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 1.5rem;
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.playbook-num {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--border);
+  line-height: 1;
+  text-align: right;
+}
+.playbook-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.4rem;
+}
+.playbook-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.playbook-body { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+.playbook-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 0.75rem;
+}
+.pill {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+/* ── SVG DIAGRAMS ── */
+svg { max-width: 100%; display: block; }
+
+/* ── FOOTER ── */
+.article-footer {
+  border-top: 2px solid var(--ink);
+  padding: 2rem 0 4rem;
+  margin-top: 4rem;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.footer-note {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 460px;
+}
+
+/* ── RESPONSIVE ── */
+
+/* Tablet */
+@media (max-width: 860px) {
+  .container--wide { padding: 0 1.5rem; }
+  .chart-wrap--tall { height: 340px; }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  html { font-size: 16px; }
+  .container { padding: 0 1.25rem; }
+  .container--wide { padding: 0 1.25rem; }
+
+  /* masthead */
+  .masthead { padding: 1rem 0 0.75rem; }
+  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+  .issue-meta { text-align: left; }
+
+  /* hero */
+  .hero { padding: 2.5rem 0 2rem; }
+  .hero h1 { font-size: 2rem; margin-bottom: 1.25rem; }
+  .hero-deck { font-size: 0.95rem; margin-bottom: 1.75rem; }
+  .byline { flex-wrap: wrap; gap: 0.5rem; }
+  .byline-sep { display: none; }
+
+  /* section markers */
+  .section-marker { padding-top: 2.5rem; margin-bottom: 1.75rem; }
+  .section-tag { display: none; }
+
+  /* article body */
+  .article-body { padding: 2.5rem 0; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.1rem; margin: 2rem 0 0.75rem; }
+
+  /* pull quote */
+  .pull-quote { padding-left: 1.25rem; margin: 2rem 0; }
+  .pull-quote p { font-size: 1.1rem; }
+
+  /* callout */
+  .callout { padding: 1.25rem 1.25rem; }
+
+  /* figures — bleed edge to edge */
+  .figure { margin: 2rem -1.25rem; padding: 1.25rem; border-radius: 0; border-left: none; border-right: none; }
+  .chart-wrap { height: 260px; }
+  .chart-wrap--tall { height: 300px; }
+
+  /* stat row — 2×2 grid on mobile */
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .stat-val { font-size: 1.5rem; }
+  .stat-label { min-height: auto; font-size: 0.54rem; }
+
+  /* SVG figures — horizontal scroll rather than squish */
+  .figure { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .figure svg { min-width: 560px; }
+
+  /* phase lifecycle diagram — stack vertically on mobile */
+  .phase-row { flex-direction: column !important; }
+  .phase-row > div { border-right: 1px solid var(--border) !important; border-bottom: none; }
+  .phase-row > div:not(:last-child) { border-bottom: none; }
+
+  /* playbook */
+  .playbook-item { grid-template-columns: 2.5rem 1fr; gap: 1rem; padding: 1.5rem 0; }
+  .playbook-num { font-size: 1.8rem; }
+  .playbook-title { font-size: 1rem; }
+
+  /* pills */
+  .pill { font-size: 0.56rem; }
+
+  /* footer */
+  .article-footer { padding: 1.5rem 0 3rem; margin-top: 2rem; }
+  .footer-inner { flex-direction: column; gap: 1rem; }
+  .footer-note { max-width: 100%; }
+  .footer-note:last-child { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- MASTHEAD -->
+<div class="container">
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div>
+        <div class="site-tag">Analysis & Commentary</div>
+        <div class="site-name">Agent Ecosystems</div>
+      </div>
+      <div class="issue-meta">
+        March 2026<br>
+        Field Report No. 1
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="container">
+  <div class="hero">
+    <div class="hero-kicker">Plugin Economies</div>
+    <h1>The Power Law of <em>Agent Plugins</em>: What OpenClaw Tells Us About the Future of AI Extensions</h1>
+    <p class="hero-deck">A data-driven analysis of the OpenClaw skill ecosystem, what dominates, why, and what every major plugin market in history says will happen next.</p>
+    <div class="byline">
+      <span>Based on live ClawHub data</span>
+      <span class="byline-sep">·</span>
+      <span>31,399 skills analysed</span>
+      <span class="byline-sep">·</span>
+      <span>Top 50 by downloads</span>
+    </div>
+  </div>
+</div>
+
+<!-- ARTICLE BODY -->
+<div class="container">
+<div class="article-body">
+
+<!-- ═══════════════════════════════════ SECTION 1 ═══════════════════════════════════ -->
+<div class="section-marker">
+  <span class="section-num">01 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">What is OpenClaw</span>
+</div>
+
+<h2>A New Kind of Platform</h2>
+
+<p>OpenClaw is an extension framework for AI agents, specifically, for Claude-based agents running in agentic environments like Clawdbot. Think of it as a plugin system where the host application is not a browser, a CMS, or an IDE, but an AI agent itself. Skills are plain-text instruction files that tell the agent how to behave in a given context: how to use a CLI tool, how to connect to an API, how to manage memory, how to improve itself.</p>
+
+<p>The skill registry, ClawHub, is the distribution layer. As of March 2026, it hosts 31,399 skills with public download and star counts, which makes it one of the first agent plugin markets to have enough data to analyse seriously.</p>
+
+<div class="callout">
+  <div class="callout-label">Technical definition</div>
+  <p>An OpenClaw skill is a Markdown file with structured sections: a trigger condition (when the agent should use it), a set of instructions, and optional metadata. When installed, the skill is injected into the agent's context window at the appropriate moment. This is fundamentally different from traditional plugins: there is no compiled code, no API surface, and no runtime dependency, just structured natural language that modifies the agent's reasoning.</p>
+</div>
+
+<p>This has an interesting implication: the bottleneck for skill quality is not engineering but clarity. The best skills are not the most technically complex, they are the most precisely written. As we will see, this creates a very different competitive dynamic from software plugin markets that came before.</p>
+
+<div class="stat-row">
+  <div class="stat-cell">
+    <div class="stat-label">Total skills</div>
+    <div class="stat-val">31,399</div>
+    <div class="stat-sub">on ClawHub as of Mar 2026</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Top skill downloads</div>
+    <div class="stat-val">275k</div>
+    <div class="stat-sub">self-improving-agent by @pskoett</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Median top-50 downloads</div>
+    <div class="stat-val">~16k</div>
+    <div class="stat-sub">vs #1 at 275k, 17× gap</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Platform age</div>
+    <div class="stat-val">&lt;1 yr</div>
+    <div class="stat-sub">early-market dynamics fully intact</div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════ SECTION 2 ═══════════════════════════════════ -->
+<div class="section-marker">
+  <span class="section-num">02 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">The Most Popular Skills</span>
+</div>
+
+<h2>Who Dominates, and Why</h2>
+
+<p>To understand what comes next, it helps to look at what has already played out. The top 50 skills by download count reveal patterns that are both distinctive to this market and deeply familiar from analogous ones.</p>
+
+<h3>The power law in raw form</h3>
+
+<p>Download distributions in plugin ecosystems are not normally distributed. They are not even mildly skewed. They follow what mathematicians call a <strong>power law</strong>, a mathematical relationship where a small number of items accumulate a wildly disproportionate share of total value, and each successive rank earns dramatically less than the one above it.</p>
+
+<p>In a power law distribution, the frequency of an item as a function of its rank follows: <span style="font-family:var(--mono);font-size:0.85rem;">f(r) = C · r<sup>−α</sup></span>, where r is the rank and α (alpha) is the exponent that determines how steep the drop-off is. The OpenClaw data shows a very steep alpha, meaning the drop from #1 to #10 is far more severe than in, say, the App Store, which has years of long-tail accumulation to moderate the curve.</p>
+</div>
+</div>
+
+<!-- POWER LAW CHART - full width -->
+<div class="container--wide">
+  <div class="figure">
+    <div class="figure-title"><span>Fig. 01</span> Power law distribution, top 50 OpenClaw skills by downloads</div>
+    <div class="chart-wrap--tall">
+      <canvas id="powerLawChart"></canvas>
+    </div>
+    <p class="figure-caption">The steep initial drop, from 275k at rank 1 to 97k at rank 3, is characteristic of an immature power-law market where the distribution has not yet been moderated by time and long-tail accumulation. Note how the curve flattens around rank 20, creating a dense cluster in the 15k–25k range.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<p>The top three skills alone, self-improving-agent, ontology, and Self-Improving + Proactive Agent, account for roughly 495,000 downloads. That is more than all skills ranked 11–50 combined. Not unusual for a young market: the WordPress plugin ecosystem looked nearly identical in 2007.</p>
+
+<h3>The thematic map</h3>
+
+<p>Grouping the top 50 by use case rather than rank makes the picture clearer. The market has not yet found equilibrium across all categories, some are saturated with competing skills, while others are winner-take-all.</p>
+
+</div>
+</div>
+
+<!-- CATEGORY CHART - full width -->
+<div class="container--wide">
+  <div class="figure">
+    <div class="figure-title"><span>Fig. 02</span> Aggregate downloads by category, top 50 skills</div>
+    <div class="chart-wrap">
+      <canvas id="categoryChart"></canvas>
+    </div>
+    <p class="figure-caption">Agent meta/self-improvement dominates by a large margin, driven almost entirely by the top 3 skills. The "image, audio & video" category has the most skills (8) but comparatively modest aggregate downloads, suggesting fragmentation without a dominant player.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<h3>Stars versus downloads: the quality signal problem</h3>
+
+<p>Raw download counts are a noisy signal, and always have been. In every mature plugin market, npm, WordPress, Chrome Extensions, download inflation through bots, CI pipelines, and programmatic installs eventually degrades the metric's usefulness. Stars, which require a deliberate human choice, are more signal-dense.</p>
+
+<p>The ratio of stars to downloads is a simple way to tell whether people who installed a skill actually cared about it. A healthy ratio sits above 0.5%. Two skills in the top 50, Polymarket (#13) and Post Job (#29), have ratios below 0.05%, suggesting their download counts may be inflated by programmatic or incentivised installs.</p>
+
+</div>
+</div>
+
+<!-- STARS VS DOWNLOADS SCATTER - full width -->
+<div class="container--wide">
+  <div class="figure">
+    <div class="figure-title"><span>Fig. 03</span> Stars vs downloads, quality signal divergence</div>
+    <div class="chart-wrap">
+      <canvas id="starChart"></canvas>
+    </div>
+    <p class="figure-caption">Skills above the diagonal trend line have unusually high star rates, genuine user love. Skills below it have anomalously few stars for their download count. The two lowest-ratio outliers (Polymarket, Post Job) warrant scrutiny.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<!-- ═══════════════════════════════════ SECTION 3 ═══════════════════════════════════ -->
+<div class="section-marker">
+  <span class="section-num">03 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Historical Analogues</span>
+</div>
+
+<h2>We Have Seen This Before</h2>
+
+<p>Every major software platform that opened a plugin layer went through roughly the same sequence: an initial explosion of creator activity, a rapid power-law consolidation, a quality crisis, and then a maturation phase defined by monetisation and platform-level curation. OpenClaw is early in step one. Understanding how that sequence plays out is probably the most useful thing a skill creator can know right now.</p>
+
+<div class="pull-quote">
+  <p>"The question is not whether OpenClaw will follow the pattern. It is how fast it will move through each phase, and which skills will survive the transitions."</p>
+</div>
+
+<h3>The WordPress Plugin Ecosystem (2005–2012): the closest structural analogue</h3>
+
+<p>WordPress plugins are the closest comparison to OpenClaw skills. Both are plain-text layers sitting on top of a larger platform. Both have almost no barrier to publishing. And both reward credentialed, prolific creators with distribution advantages that compound over time.</p>
+
+<p>The numbers tell the story clearly. WordPress introduced its plugin architecture in May 2004. An official directory launched in 2006. By the end of 2011 that directory had 10,000 plugins. By early 2013, 20,000. Total downloads crossed 1 billion in 2014 and the directory passed 50,000 plugins by 2017. The growth was exponential in the early years, then began flattening as the platform matured and started pruning low-quality entries. OpenClaw at 31,399 skills is somewhere between WordPress's 2012 and 2013 levels in raw count terms, suggesting the consolidation phase is closer than it looks.</p>
+
+<p>In WordPress's first three years or so, a handful of authors, Automattic insiders, Joost de Valk (Yoast SEO), Carl Hancock (Gravity Forms), built positions in the top 20 that held for five years. The meta-plugin pattern was already visible by 2007: SEO plugins, caching plugins, and security plugins dominated because they made WordPress itself more capable rather than adding a single feature. Yoast SEO is now active on over 10 million sites. It did not solve a specific problem, it solved the problem of WordPress's relationship to search engines generally.</p>
+
+<p>@steipete on OpenClaw maps almost exactly to Joost de Valk on WordPress: a credentialed insider, prolific publisher, high version cadence, and deep integration with the platform's own roadmap. The moat is not any single skill, it is the trust signal that accretes across all of them.</p>
+
+</div>
+</div>
+
+<div class="container--wide">
+  <div class="figure">
+    <div class="figure-title"><span>Fig. 04</span> Historical platform analogues, structural parallels to OpenClaw</div>
+    <svg viewBox="0 0 1000 730" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans', system-ui, sans-serif">
+
+      <rect width="1000" height="730" fill="#f5f2ec"/>
+
+      <!-- column headers -->
+      <text x="30" y="28" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#6b6860" letter-spacing="1.5">PLATFORM</text>
+      <text x="220" y="28" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#6b6860" letter-spacing="1.5">ERA</text>
+      <text x="330" y="28" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#6b6860" letter-spacing="1.5">STRONG PARALLELS</text>
+      <text x="640" y="28" font-family="'IBM Plex Mono', monospace" font-size="10" fill="#6b6860" letter-spacing="1.5">KEY LESSON FOR OPENCLAW</text>
+      <line x1="20" y1="38" x2="980" y2="38" stroke="#d4cfc4" stroke-width="1.5"/>
+
+      <!-- ROW 1: WordPress  y=44, h=118 -->
+      <rect x="20" y="44" width="960" height="118" fill="#ede9e0" rx="1"/>
+      <text x="30" y="72" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f0f0e">WordPress Plugins</text>
+      <text x="220" y="72" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6860">2005–2012</text>
+      <text x="330" y="66" font-size="12.5" fill="#0f0f0e">• Creator dominance / trust moat</text>
+      <text x="330" y="85" font-size="12.5" fill="#0f0f0e">• Meta-plugins win (SEO, caching, security)</text>
+      <text x="330" y="104" font-size="12.5" fill="#0f0f0e">• Version cadence = sustained position</text>
+      <text x="330" y="123" font-size="12.5" fill="#0f0f0e">• Power-law locked in within 2 years</text>
+      <text x="640" y="66" font-size="12.5" fill="#c8402a" font-weight="500">The top-10 list will barely change</text>
+      <text x="640" y="85" font-size="12.5" fill="#6b6860">for 2–3 years. @steipete = Yoast.</text>
+      <text x="640" y="104" font-size="12.5" fill="#6b6860">First-mover + trust is a near-permanent</text>
+      <text x="640" y="123" font-size="12.5" fill="#6b6860">moat absent platform intervention.</text>
+
+      <!-- ROW 2: App Store  y=168, h=118 -->
+      <rect x="20" y="168" width="960" height="118" fill="#f5f2ec" rx="1"/>
+      <text x="30" y="196" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f0f0e">iOS App Store</text>
+      <text x="220" y="196" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6860">2008–2012</text>
+      <text x="330" y="190" font-size="12.5" fill="#0f0f0e">• Power-law downloads from day one</text>
+      <text x="330" y="209" font-size="12.5" fill="#0f0f0e">• Utility beats novelty long-term</text>
+      <text x="330" y="228" font-size="12.5" fill="#c8402a">⚠ Star ratings gamed early</text>
+      <text x="330" y="247" font-size="12.5" fill="#c8402a">⚠ No discovery = rich get richer</text>
+      <text x="640" y="190" font-size="12.5" fill="#c8402a" font-weight="500">Without better discovery, good new</text>
+      <text x="640" y="209" font-size="12.5" fill="#6b6860">skills stay buried. ClawHub needs</text>
+      <text x="640" y="228" font-size="12.5" fill="#6b6860">editorial curation or a verified tier</text>
+      <text x="640" y="247" font-size="12.5" fill="#6b6860">before the long tail suffocates.</text>
+
+      <!-- ROW 3: Shopify  y=292, h=118 -->
+      <rect x="20" y="292" width="960" height="118" fill="#ede9e0" rx="1"/>
+      <text x="30" y="320" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f0f0e">Shopify App Store</text>
+      <text x="220" y="320" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6860">2009–2021</text>
+      <text x="330" y="314" font-size="12.5" fill="#0f0f0e">• B2B, each install = real business revenue</text>
+      <text x="330" y="333" font-size="12.5" fill="#0f0f0e">• Connector tier dominates (marketing, logistics)</text>
+      <text x="330" y="352" font-size="12.5" fill="#0f0f0e">• 6,000 apps by 2021; 10,000 by 2024</text>
+      <text x="330" y="371" font-size="12.5" fill="#0f0f0e">• Platform absorbs best apps as native features</text>
+      <text x="640" y="314" font-size="12.5" fill="#c8402a" font-weight="500">API Gateway (#8) is the Shopify</text>
+      <text x="640" y="333" font-size="12.5" fill="#6b6860">connector analogue. One skill will own</text>
+      <text x="640" y="352" font-size="12.5" fill="#6b6860">this tier. And when paid skills arrive,</text>
+      <text x="640" y="371" font-size="12.5" fill="#6b6860">B2B utility skills will command real fees.</text>
+
+      <!-- ROW 4: Chrome  y=416, h=118 -->
+      <rect x="20" y="416" width="960" height="118" fill="#f5f2ec" rx="1"/>
+      <text x="30" y="444" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f0f0e">Chrome Extensions</text>
+      <text x="220" y="444" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6860">2010–2016</text>
+      <text x="330" y="438" font-size="12.5" fill="#0f0f0e">• Security tools emerge early and stick</text>
+      <text x="330" y="457" font-size="12.5" fill="#0f0f0e">• Creator trust = frictionless install rate</text>
+      <text x="330" y="476" font-size="12.5" fill="#c8402a">⚠ Malicious extension wave</text>
+      <text x="330" y="495" font-size="12.5" fill="#c8402a">⚠ Google crackdown reshaped market</text>
+      <text x="640" y="438" font-size="12.5" fill="#c8402a" font-weight="500">A high-profile malicious skill incident</text>
+      <text x="640" y="457" font-size="12.5" fill="#6b6860">is probable. MoltGuard (#21) is early</text>
+      <text x="640" y="476" font-size="12.5" fill="#6b6860">positioning for that moment. The</text>
+      <text x="640" y="495" font-size="12.5" fill="#6b6860">"nonSuspicious" filter already signals it.</text>
+
+      <!-- ROW 5: npm  y=540, h=118 -->
+      <rect x="20" y="540" width="960" height="118" fill="#ede9e0" rx="1"/>
+      <text x="30" y="568" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#0f0f0e">npm Registry</text>
+      <text x="220" y="568" font-family="'IBM Plex Mono', monospace" font-size="11" fill="#6b6860">2010–present</text>
+      <text x="330" y="562" font-size="12.5" fill="#0f0f0e">• Download inflation is endemic</text>
+      <text x="330" y="581" font-size="12.5" fill="#0f0f0e">• Stars/download ratio = the real signal</text>
+      <text x="330" y="600" font-size="12.5" fill="#c8402a">⚠ 2.5M packages, top 500 take 90%</text>
+      <text x="330" y="619" font-size="12.5" fill="#c8402a">⚠ "left-pad moment" dependency risk</text>
+      <text x="640" y="562" font-size="12.5" fill="#c8402a" font-weight="500">Downloads will be deprioritised as</text>
+      <text x="640" y="581" font-size="12.5" fill="#6b6860">a metric. Platforms add "active installs"</text>
+      <text x="640" y="600" font-size="12.5" fill="#6b6860">to replace them. Build for star rate,</text>
+      <text x="640" y="619" font-size="12.5" fill="#6b6860">not download count.</text>
+    </svg>
+    <p class="figure-caption">Each historical platform offers a distinct warning. The intersection of all five is the OpenClaw trajectory: creator moats harden, discovery fails, a security incident triggers platform intervention, and monetisation reshuffles everything.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<h3>iOS, Chrome, and npm: speed, governance, inflation</h3>
+
+<p>The iOS App Store launched in July 2008 with 500 apps. Within a single weekend it had 10 million downloads. By September 2012, just four years in, it had 700,000 apps and 30 billion cumulative downloads. Chrome's extension gallery grew from zero to 8,500 extensions and 70 million installs in its first year, reaching 750 million total installs by mid-2012. npm, more quietly, went from nothing in 2010 to 100,000 packages and 500 million monthly downloads by 2014, and 3.3 million packages by 2019.</p>
+
+<p>Each of these markets went through the same governance arc. Early: open, fast, almost no review. Middle: malicious actors exploit the openness, platform scrambles to respond. Late: stricter policies, quality floors, pruning of low-value entries. Chrome removed extensions that injected ads without user consent. Apple tightened privacy rules and killed 64-bit non-compliant apps, trimming the store from 2.2 million to 1.9 million apps. npm responded to spam and supply-chain attacks with new policy tools. The pattern is invariant. The only question for OpenClaw is how long the open phase lasts.</p>
+
+<h3>Shopify: the B2B template for what comes after</h3>
+
+<p>Shopify launched its App Store in June 2009. Growth was slow for the first few years, then exponential after 2012. By 2021 it had 6,000 apps. By 2024 it crossed 10,000, before a modest pullback as Shopify pruned underperforming entries. The key difference from every other analogue: each install on Shopify connects to a business that generates real revenue. Apps that improve conversion or reduce operational costs can justify recurring subscription fees easily, because the ROI is direct and measurable.</p>
+
+<p>This is the model OpenClaw is most likely to evolve toward if it attracts professional and enterprise users. The API Gateway skill (#8) already looks like a Shopify-style connector: it sits close to the workflow that matters, it integrates external services merchants (agents, in this case) actually pay for, and it would be a natural candidate for a paid tier. When that transition happens, the ranking dynamics could shift substantially. Shopify's experience suggests that the free-to-paid transition reshuffles the top 50 faster than any other platform event.</p>
+
+<div style="margin:2.5rem 0;">
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;letter-spacing:.12em;text-transform:uppercase;color:#c8402a;margin-bottom:1.25rem;">Framework: the five-stage platform lifecycle</div>
+  <p style="font-size:0.88rem;color:#6b6860;margin-bottom:1.5rem;line-height:1.6;">Strategy consultants at Bain and McKinsey have documented a consistent five-step arc across every major platform ecosystem. It maps cleanly onto OpenClaw's current moment:</p>
+
+  <!-- Stage row -->
+  <div class="phase-row" style="display:flex;gap:0;align-items:stretch;margin-bottom:1rem;">
+
+    <!-- Stage 1 -->
+    <div style="flex:1;border:1px solid #d4cfc4;border-right:none;padding:16px 14px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#6b6860;margin-bottom:8px;">01</div>
+      <div style="font-size:14px;font-weight:500;color:#0f0f0e;margin-bottom:8px;">Identify</div>
+      <div style="font-size:11px;color:#6b6860;line-height:1.55;">Nail the jobs a platform does better than a standalone product. Coordinating tools, memory, workflows.</div>
+    </div>
+
+    <!-- Stage 2 -->
+    <div style="flex:1;border:1px solid #d4cfc4;border-right:none;padding:16px 14px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#6b6860;margin-bottom:8px;">02</div>
+      <div style="font-size:14px;font-weight:500;color:#0f0f0e;margin-bottom:8px;">Build</div>
+      <div style="font-size:11px;color:#6b6860;line-height:1.55;">Ship composable primitives: a packaging format, an API, a registry. OpenClaw has done this.</div>
+    </div>
+
+    <!-- Stage 3 — current, highlighted -->
+    <div style="flex:1;border:2px solid #c8402a;border-right:none;padding:16px 14px;position:relative;">
+      <div style="position:absolute;top:-10px;left:12px;background:#c8402a;color:#f5f2ec;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.1em;padding:2px 8px;">YOU ARE HERE</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#c8402a;margin-bottom:8px;">03</div>
+      <div style="font-size:14px;font-weight:500;color:#0f0f0e;margin-bottom:8px;">Seed</div>
+      <div style="font-size:11px;color:#6b6860;line-height:1.55;">First-party extensions set the quality bar. @steipete's skills are the seeding layer for OpenClaw.</div>
+    </div>
+
+    <!-- Stage 4 — next, watch this -->
+    <div style="flex:1;border:1px solid #d4cfc4;border-right:none;padding:16px 14px;position:relative;">
+      <div style="position:absolute;top:-10px;left:12px;background:#0f0f0e;color:#f5f2ec;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:.1em;padding:2px 8px;">WATCH THIS</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#6b6860;margin-bottom:8px;">04</div>
+      <div style="font-size:14px;font-weight:500;color:#0f0f0e;margin-bottom:8px;">Scale + monetise</div>
+      <div style="font-size:11px;color:#6b6860;line-height:1.55;">Hit critical mass, then charge where value accrues. OpenClaw has not done this yet. The window is narrowing.</div>
+    </div>
+
+    <!-- Stage 5 -->
+    <div style="flex:1;border:1px solid #d4cfc4;padding:16px 14px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#6b6860;margin-bottom:8px;">05</div>
+      <div style="font-size:14px;font-weight:500;color:#0f0f0e;margin-bottom:8px;">Expand</div>
+      <div style="font-size:11px;color:#6b6860;line-height:1.55;">Use distribution and data to move into adjacent verticals. This is when a platform becomes infrastructure.</div>
+    </div>
+
+  </div>
+
+  <!-- Arrow connector bar -->
+  <div style="display:flex;align-items:center;gap:0;margin-bottom:1.25rem;">
+    <div style="flex:1;height:1px;background:linear-gradient(to right,#d4cfc4,#c8402a 50%,#d4cfc4);"></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b6860;letter-spacing:.08em;padding:0 12px;white-space:nowrap;">direction of travel</div>
+    <div style="flex:1;height:1px;background:linear-gradient(to right,#d4cfc4,#d4cfc4);"></div>
+  </div>
+
+  <p style="font-size:0.82rem;color:#6b6860;line-height:1.6;font-style:italic;">The transition from stage 3 to stage 4 will be the single most consequential event for skill creators in the next 12 months.</p>
+</div>
+
+<h3>The power law: why concentration is mathematically inevitable</h3>
+
+<p>The power law is not a quirk of one market or another. It emerges from systems with preferential attachment, where new nodes in a network are more likely to connect to already-well-connected nodes. In plugin markets the mechanism is pretty simple: users sort by popularity, install the top result, leave a star if it works, which pushes it higher in the rankings, which drives more installs. The rich get richer, not through any conspiracy, but because of how the distribution is shaped.</p>
+
+<p>Mathematically, if you plot rank on the x-axis and downloads on the y-axis on a log-log scale, a pure power law gives you a straight line. The OpenClaw data is not quite a straight line yet, it is steeper at the top than a mature market, reflecting the fact that the distribution has not had time to develop a proper long tail. As more skills accumulate downloads over time, the curve will flatten and broaden. But the top of the distribution will stay compressed: the #1 skill will likely always hold a multiple of 5–20× over the median.</p>
+
+<div class="callout">
+  <div class="callout-label">Theory note, Zipf's Law</div>
+  <p>Zipf's Law, a special case of the power law with α ≈ 1, states that the n-th most common item appears with frequency proportional to 1/n. Word frequencies in language, city populations, and yes, software download distributions all approximate Zipf's Law over time. The OpenClaw data currently has a steeper alpha (roughly 1.4–1.6 by estimation), consistent with a young market where the compounding effect has had less time to operate.</p>
+  <p>Implication: as the market matures, the top skill's relative dominance will actually decrease, not because it loses downloads, but because the long tail fills in. A skill at rank 200 today may have 500 downloads. In five years, the same rank may have 10,000 downloads. The power law flattens from the bottom up.</p>
+</div>
+
+<h3>The platform commoditisation trap</h3>
+
+<p>The one risk that historical analogues cannot fully capture is the one most specific to AI: the underlying platform is itself improving at a rate that dwarfs any software platform in history. WordPress core improved incrementally, a new block editor here, better REST API there. The LLMs powering OpenClaw agents are on a trajectory where capabilities roughly double every 12–18 months.</p>
+
+<p>This creates a kind of risk that the App Store, npm, and WordPress never had to deal with: the skills that currently occupy the top 3 positions, all agent self-improvement skills, are precisely the category the platform itself has the most incentive to absorb. If Claude 4 or 5 natively handles persistent memory, self-correction, and context management, the top 3 skills on ClawHub get deprecated by a model update. This is the equivalent of Apple folding flashlight apps into iOS, except it would happen to the highest-value category on the platform rather than a minor utility.</p>
+
+<div class="pull-quote">
+  <p>"The skills that are most popular today are most at risk of becoming unnecessary tomorrow. That is the central strategic tension of building on a rapidly improving platform."</p>
+</div>
+
+</div>
+</div>
+
+<!-- TRAJECTORY SVG -->
+<div class="container--wide">
+  <div class="figure">
+    <div class="figure-title"><span>Fig. 05</span> Predicted OpenClaw market trajectory, three phases</div>
+
+    <!-- Timeline connector bar -->
+    <div style="position:relative;display:flex;align-items:flex-start;gap:0;margin-bottom:1.5rem;">
+
+      <!-- connecting line behind dots -->
+      <div style="position:absolute;top:20px;left:calc(16.66% + 0px);right:calc(16.66% + 0px);height:1px;background:var(--border,#d4cfc4);z-index:0;"></div>
+
+      <!-- Phase 1 -->
+      <div style="flex:1;padding:0 10px;position:relative;z-index:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="width:12px;height:12px;border-radius:50%;background:#c8402a;flex-shrink:0;"></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#c8402a;white-space:nowrap;">NOW · PHASE 1</span>
+        </div>
+        <div style="background:#ede9e0;border:1px solid #d4cfc4;border-radius:2px;padding:18px 20px;">
+          <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:14px;color:#0f0f0e;">Wild West</div>
+          <div style="font-size:0.8rem;color:#6b6860;line-height:2;margin-bottom:16px;">
+            <div>→ Power users dominate</div>
+            <div>→ Creator trust accretes fast</div>
+            <div>→ Meta-skills win</div>
+            <div>→ Suspicious installs rampant</div>
+            <div>→ No monetisation</div>
+            <div>→ Top 10 crystallising now</div>
+          </div>
+          <div style="background:#c8402a;color:#f5f2ec;text-align:center;padding:8px;font-size:0.78rem;font-weight:500;border-radius:1px;">You are here</div>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div style="flex:1;padding:0 10px;position:relative;z-index:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="width:12px;height:12px;border-radius:50%;background:#f5f2ec;border:1.5px solid #d4cfc4;flex-shrink:0;"></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#6b6860;white-space:nowrap;">~6–18 MONTHS · PHASE 2</span>
+        </div>
+        <div style="background:#ede9e0;border:1px solid #d4cfc4;border-radius:2px;padding:18px 20px;">
+          <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:14px;color:#0f0f0e;">Quality Filter</div>
+          <div style="font-size:0.8rem;color:#6b6860;line-height:2;margin-bottom:16px;">
+            <div>→ Platform adds curation</div>
+            <div>→ Verified publisher tier</div>
+            <div>→ Security incident occurs</div>
+            <div>→ Active installs metric</div>
+            <div>→ Chinese market scales up</div>
+            <div>→ First paid skill experiments</div>
+          </div>
+          <div style="background:#d4cfc4;color:#6b6860;text-align:center;padding:8px;font-size:0.78rem;border-radius:1px;">Prepare now</div>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div style="flex:1;padding:0 10px;position:relative;z-index:1;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <div style="width:12px;height:12px;border-radius:50%;background:#f5f2ec;border:1.5px solid #d4cfc4;flex-shrink:0;"></div>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:#6b6860;white-space:nowrap;">~2–4 YEARS · PHASE 3</span>
+        </div>
+        <div style="background:#ede9e0;border:1px solid #d4cfc4;border-radius:2px;padding:18px 20px;">
+          <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:14px;color:#0f0f0e;">Consolidation</div>
+          <div style="font-size:0.8rem;color:#6b6860;line-height:2;margin-bottom:16px;">
+            <div>→ Paid skills / storefronts</div>
+            <div>→ Enterprise connector tier</div>
+            <div>→ M&amp;A in skill companies</div>
+            <div>→ Platform absorbs meta-skills</div>
+            <div>→ Long tail matures</div>
+            <div>→ Creator carve-outs locked in</div>
+          </div>
+          <div style="background:#d4cfc4;color:#6b6860;text-align:center;padding:8px;font-size:0.78rem;border-radius:1px;">Position for this now</div>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="figure-caption">The three-phase model is consistent across all analogous markets. The transition timelines vary, Chrome took ~4 years to reach phase 2; npm still has not fully reached phase 3, but the sequence is invariant.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<!-- ═══════════════════════════════════ SECTION 4 ═══════════════════════════════════ -->
+<div class="section-marker">
+  <span class="section-num">04 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">How to Win</span>
+</div>
+
+<h2>The Historically Informed Playbook</h2>
+
+<p>Everything that follows is derived from pattern-matching against the historical analogues above, filtered through the specific dynamics of the OpenClaw data. These are not generic startup tips. Each one maps to something specific in the data.</p>
+
+<div class="playbook-item">
+  <div class="playbook-num">1</div>
+  <div>
+    <div class="playbook-label">Principle</div>
+    <div class="playbook-title">Launch one thing and iterate it aggressively</div>
+    <div class="playbook-body">The WordPress lesson is pretty clear: early prolific quality beats early prolific quantity. @steipete's weakest skills still land in the top 50 because of the reputation earned by his strongest ones. Launch your first skill properly, iterate it to 10 or more versions, then publish a second. Version count is a visible trust signal, API Gateway at 71 versions and MoltGuard at 56 are not accidents. They are deliberate reputation-building through public maintenance history.</div>
+    <div class="playbook-evidence">
+      <span class="pill">API Gateway: 71 versions → #8</span>
+      <span class="pill">MoltGuard: 56 versions → #21</span>
+      <span class="pill">Web Search Plus: 51 versions → #25</span>
+    </div>
+  </div>
+</div>
+
+<div class="playbook-item">
+  <div class="playbook-num">2</div>
+  <div>
+    <div class="playbook-label">Principle</div>
+    <div class="playbook-title">Build a force multiplier, not a point solution</div>
+    <div class="playbook-body">The top three skills do not solve a specific task. They make the agent better at solving all tasks. API Gateway does not connect to one API, it connects to 100+. Free Ride does not give you one model, it gives you all free models. The Salesforce AppExchange taught us that in professional tool ecosystems, the connector/infrastructure layer eventually becomes more valuable than any individual integration. Find the meta-problem in your category and solve that, rather than one instance of it.</div>
+    <div class="playbook-evidence">
+      <span class="pill">Self-improving-agent: meta-cognition</span>
+      <span class="pill">API Gateway: meta-connectivity</span>
+      <span class="pill">Free Ride: meta-models</span>
+    </div>
+  </div>
+</div>
+
+<div class="playbook-item">
+  <div class="playbook-num">3</div>
+  <div>
+    <div class="playbook-label">Principle</div>
+    <div class="playbook-title">Optimise for star rate, not download count</div>
+    <div class="playbook-body">Downloads are already showing signs of inflation in the OpenClaw data. npm took about five years to fully corrupt the download metric, and OpenClaw may get there faster given how easy programmatic installs are. Stars require an actual human to make a deliberate choice. A skill with a 0.8% star rate is 16× more trusted than one with a 0.05% star rate, and as the platform matures and adds active-install tracking (which every analogous platform has eventually done), the star-rate signal will only become more important. Tight scope, clear trigger language and reliable execution are the main levers.</div>
+    <div class="playbook-evidence">
+      <span class="pill">Polymarket: 26.8k DL / 11 stars = 0.04%</span>
+      <span class="pill">Self-improving: 275k DL / 2.5k stars = 0.91%</span>
+    </div>
+  </div>
+</div>
+
+<div class="playbook-item">
+  <div class="playbook-num">4</div>
+  <div>
+    <div class="playbook-label">Principle</div>
+    <div class="playbook-title">Localised markets are systematically undervalued</div>
+    <div class="playbook-body">Five of the top 50 skills are explicitly built for Chinese users, Baidu Search (#7, 54.8k), AI PPT Generator (#19, 19.7k), Mx Stocks Screener (#31), ima skills (#42), and Tushare Pro (#48). Every historical platform market has underestimated China-specific demand until it became too large to ignore. The App Store, npm, and WordPress all developed distinct Chinese-market ecosystems years after they should have. The OpenClaw data suggests this category is currently undersupplied relative to demand. A creator with deep knowledge of any underserved regional or vertical market has a structural advantage that English-first generalist creators cannot easily replicate.</div>
+    <div class="playbook-evidence">
+      <span class="pill">5 China-focused skills in top 50</span>
+      <span class="pill">Baidu Search: 54.8k downloads</span>
+      <span class="pill">No Japanese, Korean, or EU-specific skills in top 50 yet</span>
+    </div>
+  </div>
+</div>
+
+<div class="playbook-item">
+  <div class="playbook-num">5</div>
+  <div>
+    <div class="playbook-label">Principle</div>
+    <div class="playbook-title">Position for the security wave before it arrives</div>
+    <div class="playbook-body">Chrome Extensions followed a pretty predictable path: wild growth → malicious extension incident → platform crackdown → security tool demand spike. The ClawHub "nonSuspicious" filter already signals that malicious or low-quality skills are a live concern on the platform. MoltGuard's 56-version cadence and steady position in the top 25 suggests someone has already identified this opportunity. The question is not if a trust incident happens, but when. A well-maintained security or verification skill, built before the incident, will benefit enormously from the demand spike that follows it.</div>
+    <div class="playbook-evidence">
+      <span class="pill">MoltGuard: #21, 56 versions</span>
+      <span class="pill">Verified Agent Identity: #38</span>
+      <span class="pill">"nonSuspicious" filter already exists on ClawHub</span>
+    </div>
+  </div>
+</div>
+
+<div class="playbook-item">
+  <div class="playbook-num">6</div>
+  <div>
+    <div class="playbook-label">Principle</div>
+    <div class="playbook-title">Build for the monetisation transition now</div>
+    <div class="playbook-body">Right now, every skill in the top 50 is free. That will not last. WordPress's free-plugin dominants lost significant ground within 18 months of the premium plugin wave beginning, Gravity Forms, WooCommerce, and Advanced Custom Fields reshaped the entire ecosystem by offering capabilities that the free tier could not. The first credible paid skill on OpenClaw will test whether users will pay, and that answer will determine the platform's ceiling. Build something people would pay for while everything is still free, so when the paid tier arrives, you are positioned rather than scrambling to retrofit a pricing model onto something designed to be free.</div>
+    <div class="playbook-evidence">
+      <span class="pill">WordPress premium plugins: launched ~2008</span>
+      <span class="pill">Reshaped top-50 within 18 months</span>
+      <span class="pill">Gravity Forms: $259/yr, millions in revenue</span>
+    </div>
+  </div>
+</div>
+
+<div class="callout">
+  <div class="callout-label">The central risk, and why this playbook has limits</div>
+  <p>Every principle above assumes the platform remains stable enough for skill moats to compound over time. The unique risk in OpenClaw, absent from every historical analogue, is that the underlying model is itself improving rapidly.</p>
+  <p>The self-improvement skills at #1, #2, and #3 exist because current Claude models are not natively good at persistent memory, self-correction, and structured knowledge graphs. If Claude 4 or 5 handles these natively, the top 3 skills on ClawHub are deprecated by a release note. This is not a theoretical risk, it is the central strategic tension of building on a rapidly improving AI platform.</p>
+  <p><strong>The implication:</strong> the safest categories to build in are those that depend on external relationships the platform cannot replicate: connectors to third-party APIs, regional market knowledge, compliance and security frameworks, and domain-specific expertise. These are moats the model cannot absorb through a training run.</p>
+</div>
+
+</div>
+</div>
+
+<!-- FINAL SVG: strategic matrix -->
+<div class="container--wide">
+  <div class="figure">
+    <div class="figure-title"><span>Fig. 06</span> Strategic opportunity matrix, durability vs current demand</div>
+    <!-- HTML bubble chart: position bubbles via % on a relative container -->
+    <div class="phase-row" style="display:flex;gap:0;align-items:stretch;">
+
+      <!-- Y-axis label -->
+      <div style="display:flex;align-items:center;justify-content:center;width:28px;flex-shrink:0;padding:40px 0 36px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.13em;color:#6b6860;white-space:nowrap;transform:rotate(-90deg);display:block;">DURABILITY (PLATFORM-PROOF)</span>
+      </div>
+
+      <!-- Chart area -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:0;">
+
+        <!-- Plot -->
+        <div style="position:relative;height:400px;border-left:1.5px solid #0f0f0e;border-bottom:1.5px solid #0f0f0e;">
+
+          <!-- Quadrant dividers -->
+          <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:#d4cfc4;border-top:1px dashed #d4cfc4;"></div>
+          <div style="position:absolute;top:0;bottom:0;left:50%;width:1px;border-left:1px dashed #d4cfc4;"></div>
+
+          <!-- Quadrant labels -->
+          <div style="position:absolute;left:4%;top:4%;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#d4cfc4;letter-spacing:.08em;line-height:1.6;">LOW DEMAND<br>HIGH DURABILITY</div>
+          <div style="position:absolute;right:2%;top:4%;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#c8402a;letter-spacing:.08em;line-height:1.6;text-align:right;font-weight:500;">HIGH DEMAND<br>HIGH DURABILITY ← WIN HERE</div>
+          <div style="position:absolute;left:4%;bottom:4%;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#d4cfc4;letter-spacing:.08em;line-height:1.6;">LOW DEMAND<br>LOW DURABILITY</div>
+          <div style="position:absolute;right:2%;bottom:4%;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#6b6860;letter-spacing:.08em;line-height:1.6;text-align:right;">HIGH DEMAND<br>LOW DURABILITY ← RIDE WAVE</div>
+
+          <!-- BUBBLES: left% = demand (x), bottom% = durability (y) -->
+
+          <!-- API Gateway: high demand, high durability -->
+          <div style="position:absolute;left:68%;bottom:76%;transform:translate(-50%,50%);">
+            <div style="width:60px;height:60px;border-radius:50%;background:rgba(200,64,42,0.12);border:1.5px solid #c8402a;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:#c8402a;line-height:1.4;font-weight:500;">API<br>Gateway</span>
+            </div>
+          </div>
+
+          <!-- Chinese market: very high demand, high durability -->
+          <div style="position:absolute;left:85%;bottom:68%;transform:translate(-50%,50%);">
+            <div style="width:52px;height:52px;border-radius:50%;background:rgba(200,64,42,0.12);border:1.5px solid #c8402a;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#c8402a;line-height:1.4;">Chinese<br>market</span>
+            </div>
+          </div>
+
+          <!-- MoltGuard: low-medium demand, high durability -->
+          <div style="position:absolute;left:22%;bottom:78%;transform:translate(-50%,50%);">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(42,95,200,0.1);border:1.5px solid #2a5fc8;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#2a5fc8;line-height:1.4;">Molt<br>Guard</span>
+            </div>
+          </div>
+
+          <!-- Platform tooling: low demand, medium-high durability -->
+          <div style="position:absolute;left:28%;bottom:62%;transform:translate(-50%,50%);">
+            <div style="width:44px;height:44px;border-radius:50%;background:rgba(42,95,200,0.08);border:1px solid #2a5fc8;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#2a5fc8;line-height:1.4;">Platform<br>Tooling</span>
+            </div>
+          </div>
+
+          <!-- Office docs: high demand, medium durability -->
+          <div style="position:absolute;left:65%;bottom:34%;transform:translate(-50%,50%);">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(107,104,96,0.12);border:1.5px solid #6b6860;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b6860;line-height:1.4;">Office<br>Docs</span>
+            </div>
+          </div>
+
+          <!-- Browser automation: medium demand, medium durability -->
+          <div style="position:absolute;left:50%;bottom:30%;transform:translate(-50%,50%);">
+            <div style="width:46px;height:46px;border-radius:50%;background:rgba(107,104,96,0.08);border:1px solid #6b6860;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b6860;line-height:1.4;">Browser<br>Auto</span>
+            </div>
+          </div>
+
+          <!-- Image gen: high demand, low durability (dashed = platform risk) -->
+          <div style="position:absolute;left:68%;bottom:16%;transform:translate(-50%,50%);">
+            <div style="width:50px;height:50px;border-radius:50%;background:rgba(107,104,96,0.07);border:1.5px dashed #6b6860;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#6b6860;line-height:1.4;">Image<br>Gen</span>
+            </div>
+          </div>
+
+          <!-- Self-improve: very high demand, low durability (dashed = platform risk) -->
+          <div style="position:absolute;left:84%;bottom:12%;transform:translate(-50%,50%);">
+            <div style="width:70px;height:70px;border-radius:50%;background:rgba(200,64,42,0.06);border:1.5px dashed #c8402a;display:flex;align-items:center;justify-content:center;text-align:center;">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:8px;color:#c8402a;line-height:1.5;">Self-<br>Improve<br><span style="font-size:7px;">(platform risk)</span></span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- X-axis label -->
+        <div style="text-align:center;padding:10px 0 4px;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.13em;color:#6b6860;">CURRENT DEMAND</span>
+        </div>
+
+        <!-- Legend -->
+        <div style="display:flex;flex-wrap:wrap;gap:16px;padding:8px 0 0;">
+          <div style="display:flex;align-items:center;gap:7px;">
+            <div style="width:14px;height:14px;border-radius:50%;background:rgba(200,64,42,0.12);border:1.5px solid #c8402a;flex-shrink:0;"></div>
+            <span style="font-size:11px;color:#6b6860;">High priority, build here</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;">
+            <div style="width:14px;height:14px;border-radius:50%;background:rgba(42,95,200,0.1);border:1.5px solid #2a5fc8;flex-shrink:0;"></div>
+            <span style="font-size:11px;color:#6b6860;">Defensive / emerging</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;">
+            <div style="width:14px;height:14px;border-radius:50%;background:rgba(107,104,96,0.1);border:1px solid #6b6860;flex-shrink:0;"></div>
+            <span style="font-size:11px;color:#6b6860;">Ride the wave, plan exit</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;">
+            <div style="width:14px;height:14px;border-radius:50%;background:rgba(200,64,42,0.06);border:1.5px dashed #c8402a;flex-shrink:0;"></div>
+            <span style="font-size:11px;color:#6b6860;">High demand, platform risk</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <p class="figure-caption">The strategic sweet spot is the top-right quadrant: skills with strong current demand that are also platform-proof because they depend on external relationships (APIs, regional knowledge, compliance frameworks) the model cannot absorb through training.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<h3>Understand control points before you pick a category</h3>
+
+<p>One thing the Bain and McKinsey research on platform ecosystems makes clear is that the biggest long-term winners in plugin markets are not the ones who picked the most popular category. They are the ones who positioned themselves near a control point: a part of the platform stack that is hard to replicate and that many other participants depend on.</p>
+
+<p>In WordPress, the control points were the official directory, the update mechanism, and the default bundled plugins (Akismet shipped with every install). In iOS, Apple owned distribution, billing, and device APIs as three interlocking control points. In npm, the central registry URL itself became a control point: everything routed through it, making certain packages critical infrastructure. In Shopify, checkout and the merchant billing relationship were the control points that made every app a complement rather than a competitor.</p>
+
+<p>On OpenClaw the control points are still forming, which is exactly why now is the right time to think about them. The most defensible positions will be: the skill that owns the discovery layer (a meta-skill that manages and recommends other skills), the connector layer (the skill through which agent workflows touch external services), and the trust and verification layer (the skill that tells you which other skills are safe to run). Two of those three slots already have credible occupants. The third, discovery, is wide open.</p>
+
+<h3>Conclusion: this is 2007 for agent plugins</h3>
+
+<p>Every signal in the OpenClaw data is consistent with a market in its first 18 months. The power law is steep and still forming. Creator moats are crystallising in real time. The quality signal problem is visible already, just not critical yet. Monetisation has not arrived yet. The platform is improving faster than any analogous historical market ever did.</p>
+
+<p>That combination of familiar dynamics and novel risk means the opportunity is real and the window is open, but it will not stay open long. The top-10 list in most analogous markets became nearly immutable within two to three years of launch. On OpenClaw, given the pace of the ecosystem, that window may be shorter.</p>
+
+<p>The people who win will be the ones who treat this not as a novelty but as a familiar historical pattern playing out in a new context, and act with the urgency that kind of pattern recognition demands.</p>
+
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="container">
+  <div class="article-footer">
+    <div class="footer-inner">
+      <div class="footer-note">
+        Data sourced from ClawHub (clawhub.ai) via live scrape, March 2026.<br>
+        Top 50 skills by download count, nonSuspicious filter active.<br>
+        Download figures represent cumulative installs and may include programmatic installs.<br>
+        Star counts reflect deliberate user endorsements and are the preferred quality signal.
+      </div>
+      <div class="footer-note" style="text-align:right">
+        Historical comparisons draw on publicly available ecosystem data for<br>
+        WordPress, Apple App Store, Shopify App Store, Chrome Extensions,<br>
+        npm registry, and Bain/McKinsey platform strategy research.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHARTS INIT -->
+<script>
+const colors = {
+  accent: '#c8402a',
+  accent2: '#2a5fc8',
+  muted: '#6b6860',
+  border: '#d4cfc4',
+  ink: '#0f0f0e',
+  paper: '#f5f2ec',
+};
+
+// ── FIG 01: Power Law ──
+{
+  const ranks = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50];
+  const downloads = [275,123,97.2,64.8,60.7,59.5,54.8,50.7,42.9,42.1,36.3,27.2,26.8,26.8,22.9,22.6,22.3,21.4,19.7,19.3,17.6,17.3,16.2,15.5,15.4,15,14.9,14.2,13.3,12.5,12,11,10.9,10.7,10.2,9.8,9.5,9.2,9,8.8,8.5,8.2,7.9,7.6,7.3,7,6.7,6.5,6.4,6.3];
+
+  new Chart(document.getElementById('powerLawChart'), {
+    type: 'line',
+    data: {
+      labels: ranks,
+      datasets: [{
+        data: downloads,
+        borderColor: colors.accent,
+        backgroundColor: 'rgba(200,64,42,0.06)',
+        borderWidth: 2,
+        pointRadius: 3,
+        pointBackgroundColor: colors.accent,
+        pointBorderColor: colors.paper,
+        pointBorderWidth: 1.5,
+        fill: true,
+        tension: 0.3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: ctx => `Rank #${ctx[0].label}`,
+            label: ctx => `${ctx.raw}k downloads`,
+          },
+          backgroundColor: colors.ink,
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          padding: 10,
+          cornerRadius: 2,
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Rank', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
+          ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, maxTicksLimit: 10 },
+          grid: { color: 'rgba(212,207,196,0.4)' },
+          border: { color: colors.border },
+        },
+        y: {
+          title: { display: true, text: 'Downloads (thousands)', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
+          ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, callback: v => v + 'k' },
+          grid: { color: 'rgba(212,207,196,0.4)' },
+          border: { color: colors.border },
+        }
+      }
+    }
+  });
+}
+
+// ── FIG 02: Category Chart ──
+{
+  const cats = ['Agent meta', 'Finance & analytics', 'Web search', 'API & connectors', 'Office docs', 'Image/audio/video', 'Browser & desktop', 'Productivity & dev', 'Communication', 'Platform tooling', 'Security & misc'];
+  const totals = [495.2, 127.1, 91.6, 108.5, 80, 87, 89.8, 71.3, 60.1, 77.7, 46.1];
+
+  const sorted = cats.map((c,i) => ({c, v:totals[i]})).sort((a,b) => b.v - a.v);
+
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(s => s.c),
+      datasets: [{
+        data: sorted.map(s => s.v),
+        backgroundColor: sorted.map((s,i) => i === 0 ? 'rgba(200,64,42,0.7)' : 'rgba(107,104,96,0.25)'),
+        borderColor: sorted.map((s,i) => i === 0 ? colors.accent : colors.border),
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${Math.round(ctx.raw)}k total downloads`,
+          },
+          backgroundColor: colors.ink,
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          padding: 10,
+          cornerRadius: 2,
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, maxRotation: 35, minRotation: 20 },
+          grid: { display: false },
+          border: { color: colors.border },
+        },
+        y: {
+          title: { display: true, text: 'Aggregate downloads (k)', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
+          ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, callback: v => v + 'k' },
+          grid: { color: 'rgba(212,207,196,0.4)' },
+          border: { color: colors.border },
+        }
+      }
+    }
+  });
+}
+
+// ── FIG 03: Stars vs Downloads ──
+{
+  const skills = [
+    {n:'self-improving-agent',dl:275,s:2500,r:1},
+    {n:'ontology',dl:123,s:352,r:2},
+    {n:'Self-Improving+Proactive',dl:97.2,s:541,r:3},
+    {n:'Free Ride',dl:42.9,s:318,r:9},
+    {n:'Clawdhub',dl:22.3,s:193,r:17},
+    {n:'API Gateway',dl:50.7,s:250,r:8},
+    {n:'Obsidian',dl:59.5,s:243,r:6},
+    {n:'Nano Banana',dl:60.7,s:240,r:5},
+    {n:'MoltGuard',dl:17.6,s:85,r:21},
+    {n:'Agent Browser',dl:36.3,s:118,r:11},
+    {n:'ontology',dl:123,s:352,r:2},
+    {n:'Baidu Search',dl:54.8,s:144,r:7},
+    {n:'AdMapix',dl:64.8,s:162,r:4},
+    {n:'Mcporter',dl:42.1,s:125,r:10},
+    {n:'Word/DOCX',dl:26.8,s:99,r:14},
+    {n:'Excel/XLSX',dl:22.9,s:80,r:15},
+    {n:'Polymarket',dl:26.8,s:11,r:13,flag:true},
+    {n:'Post Job',dl:13.3,s:5,r:29,flag:true},
+    {n:'Web Search+',dl:15.4,s:75,r:25},
+    {n:'Playwright',dl:15,s:50,r:26},
+  ];
+
+  // Linear regression over all points
+  const xs = skills.map(s=>s.dl), ys = skills.map(s=>s.s);
+  const n = xs.length;
+  const sumX = xs.reduce((a,b)=>a+b,0), sumY = ys.reduce((a,b)=>a+b,0);
+  const sumXY = xs.reduce((a,s,i)=>a+s*ys[i],0), sumX2 = xs.reduce((a,s)=>a+s*s,0);
+  const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+  const intercept = (sumY - slope*sumX) / n;
+  const xMin = 0, xMax = 290;
+  const trendData = [
+    {x: xMin, y: Math.max(0, slope*xMin + intercept)},
+    {x: xMax, y: slope*xMax + intercept},
+  ];
+
+  new Chart(document.getElementById('starChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [
+        {
+          label: 'Trend',
+          data: trendData,
+          type: 'line',
+          borderColor: 'rgba(200,64,42,0.35)',
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false,
+          tension: 0,
+        },
+        {
+          label: 'Normal',
+          data: skills.filter(s=>!s.flag).map(s=>({x:s.dl,y:s.s,name:s.n})),
+          backgroundColor: 'rgba(107,104,96,0.5)',
+          borderColor: 'rgba(107,104,96,0.8)',
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        },
+        {
+          label: 'Suspicious ratio',
+          data: skills.filter(s=>s.flag).map(s=>({x:s.dl,y:s.s,name:s.n})),
+          backgroundColor: 'rgba(200,64,42,0.6)',
+          borderColor: colors.accent,
+          pointRadius: 8,
+          pointHoverRadius: 10,
+          pointStyle: 'triangle',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: colors.muted,
+            font: { family: "'IBM Plex Mono'", size: 9 },
+            boxWidth: 12,
+            padding: 16,
+            filter: item => item.text !== 'Trend',
+          }
+        },
+        tooltip: {
+          filter: item => item.dataset.label !== 'Trend',
+          callbacks: {
+            label: ctx => {
+              const d = ctx.raw;
+              if (!d.name) return null;
+              const rate = ((d.y / (d.x * 10))).toFixed(2);
+              return [`${d.name}`, `Downloads: ${d.x}k  Stars: ${d.y}`, `Star rate: ${rate}%`];
+            }
+          },
+          backgroundColor: colors.ink,
+          titleColor: '#fff',
+          bodyColor: '#ccc',
+          padding: 10,
+          cornerRadius: 2,
+        }
+      },
+      scales: {
+        x: {
+          title: { display: true, text: 'Downloads (thousands)', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
+          ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 }, callback: v => v + 'k' },
+          grid: { color: 'rgba(212,207,196,0.4)' },
+          border: { color: colors.border },
+        },
+        y: {
+          title: { display: true, text: 'Stars', color: colors.muted, font: { family: "'IBM Plex Mono'", size: 10 } },
+          ticks: { color: colors.muted, font: { family: "'IBM Plex Mono'", size: 9 } },
+          grid: { color: 'rgba(212,207,196,0.4)' },
+          border: { color: colors.border },
+        }
+      }
+    }
+  });
+}
+</script>
+
+</body>
+</html>

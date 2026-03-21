@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dhyaneesh DS — Research & Writing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0f0e;
+  --paper: #f5f2ec;
+  --cream: #ede9e0;
+  --accent: #c8402a;
+  --muted: #6b6860;
+  --border: #d4cfc4;
+  --serif: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 18px; }
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-weight: 300; -webkit-font-smoothing: antialiased; }
+.container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+
+.masthead { border-bottom: 2px solid var(--ink); padding: 1.5rem 0 1rem; }
+.masthead-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
+.site-tag { font-family: var(--mono); font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.site-name { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; letter-spacing: -.02em; }
+.nav { display: flex; gap: 1.5rem; align-items: center; }
+.nav a { font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+.nav a:hover { color: var(--ink); }
+.nav a.ext::after { content: ' ↗'; font-size: .5rem; }
+
+.hero { padding: 4rem 0 3.5rem; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+.hero-kicker { font-family: var(--mono); font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; display: flex; align-items: center; gap: .75rem; }
+.hero-kicker::before { content: ''; display: inline-block; width: 20px; height: 1px; background: var(--accent); }
+.hero h1 { font-family: var(--serif); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.05; letter-spacing: -.04em; margin-bottom: 1.25rem; }
+.hero-desc { font-size: .9rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.75rem; }
+.hero-links { display: flex; gap: .75rem; flex-wrap: wrap; }
+.hero-link { font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-decoration: none; border: 1px solid var(--border); padding: 5px 12px; transition: border-color .15s, color .15s; }
+.hero-link:hover { border-color: var(--ink); color: var(--ink); }
+.hero-link.primary { border-color: var(--accent); color: var(--accent); }
+.hero-link.primary:hover { background: var(--accent); color: var(--paper); }
+.hero-right { border-left: 1px solid var(--border); padding-left: 3rem; }
+.credential { display: flex; gap: 1rem; align-items: flex-start; padding: .9rem 0; border-bottom: 1px solid var(--border); }
+.credential:last-child { border-bottom: none; }
+.credential-arrow { font-family: var(--mono); font-size: .6rem; color: var(--accent); min-width: 14px; padding-top: .12rem; }
+.credential-title { font-size: .82rem; font-weight: 500; color: var(--ink); margin-bottom: .2rem; line-height: 1.3; }
+.credential-sub { font-family: var(--mono); font-size: .54rem; color: var(--muted); letter-spacing: .03em; }
+
+.section-label { font-family: var(--mono); font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.featured { padding: 3rem 0; border-bottom: 1px solid var(--border); }
+.featured-card { display: grid; grid-template-columns: 1fr 2fr; gap: 3rem; align-items: start; text-decoration: none; color: inherit; }
+.featured-card:hover .featured-title { color: var(--accent); }
+.featured-issue { font-family: var(--mono); font-size: .58rem; letter-spacing: .1em; color: var(--accent); margin-bottom: .75rem; }
+.featured-date { font-family: var(--mono); font-size: .58rem; color: var(--muted); margin-bottom: 1.5rem; }
+.featured-tag-list { display: flex; flex-direction: column; gap: 6px; }
+.featured-tag { font-family: var(--mono); font-size: .55rem; padding: 3px 8px; border: 1px solid var(--border); color: var(--muted); letter-spacing: .04em; display: inline-block; width: fit-content; }
+.featured-title { font-family: var(--serif); font-size: clamp(1.3rem, 2.5vw, 1.8rem); font-weight: 700; line-height: 1.15; letter-spacing: -.03em; margin-bottom: 1rem; transition: color .15s; }
+.featured-deck { font-size: .88rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.5rem; }
+.read-link { font-family: var(--mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); text-decoration: none; }
+.read-link::after { content: ' →'; }
+
+.article-list { padding: 3rem 0; }
+.article-row { display: grid; grid-template-columns: 100px 1fr auto; gap: 2rem; align-items: baseline; padding: 1.25rem 0; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit; }
+.article-row:first-of-type { border-top: 1px solid var(--border); }
+.article-row:hover .article-title { color: var(--accent); }
+.article-num { font-family: var(--mono); font-size: .58rem; color: var(--muted); letter-spacing: .06em; }
+.article-title { font-family: var(--serif); font-size: 1rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.3; margin-bottom: .3rem; transition: color .15s; }
+.article-excerpt { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+.article-date { font-family: var(--mono); font-size: .55rem; color: var(--muted); white-space: nowrap; letter-spacing: .05em; }
+
+.awards { padding: 2.5rem 0; border-bottom: 1px solid var(--border); }
+.award-row { display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: baseline; padding: .9rem 0; border-bottom: 1px solid var(--border); }
+.award-row:last-child { border-bottom: none; }
+.award-name { font-size: .88rem; font-weight: 500; }
+.award-detail { font-family: var(--mono); font-size: .56rem; color: var(--muted); margin-top: 2px; }
+.award-prize { font-family: var(--mono); font-size: .6rem; color: var(--accent); white-space: nowrap; }
+
+.about-strip { background: var(--cream); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 3rem 0; }
+.about-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; }
+.about-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: .75rem; }
+.about-body { font-size: .82rem; color: var(--muted); line-height: 1.7; }
+.skill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1rem; }
+.skill-cell { background: var(--cream); padding: 10px 12px; }
+.skill-label { font-family: var(--mono); font-size: .55rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+.skill-val { font-size: .78rem; color: var(--muted); line-height: 1.55; }
+
+.footer { border-top: 2px solid var(--ink); padding: 1.5rem 0 3rem; }
+.footer-inner { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 1rem; }
+.footer-note { font-family: var(--mono); font-size: .58rem; color: var(--muted); letter-spacing: .04em; line-height: 1.8; }
+
+/* ── TABLET ── */
+@media (max-width: 780px) {
+  .hero { gap: 2.5rem; }
+  .about-inner { gap: 2.5rem; }
+}
+
+/* ── MOBILE ── */
+@media (max-width: 640px) {
+  html { font-size: 16px; }
+  .container { padding: 0 1.25rem; }
+
+  /* masthead: stack name + hide nav, show hamburger-style links below */
+  .masthead { padding: 1rem 0 0.75rem; }
+  .masthead-inner { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .nav { gap: 1rem; flex-wrap: wrap; }
+  .nav a { font-size: 0.58rem; }
+
+  /* hero: single column */
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    padding: 2.5rem 0 2rem;
+  }
+  .hero h1 { font-size: 2rem; }
+  .hero-right {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+  }
+  .hero-links { flex-direction: column; gap: 0.6rem; }
+  .hero-link { text-align: center; padding: 8px 16px; }
+
+  /* credentials: tighter */
+  .credential { padding: 0.75rem 0; }
+  .credential-title { font-size: 0.8rem; }
+
+  /* section labels */
+  .section-label { margin-bottom: 1.25rem; }
+
+  /* featured: single column */
+  .featured { padding: 2rem 0; }
+  .featured-card { grid-template-columns: 1fr; gap: 1.25rem; }
+  .featured-tag-list { flex-direction: row; flex-wrap: wrap; }
+  .featured-title { font-size: 1.3rem; }
+  .featured-deck { font-size: 0.84rem; }
+
+  /* article list */
+  .article-list { padding: 2rem 0; }
+  .article-row {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+    padding: 1rem 0;
+  }
+  .article-num { margin-bottom: 0.2rem; }
+  .article-date { display: none; }
+
+  /* awards */
+  .awards { padding: 2rem 0; }
+  .award-row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+    padding: 0.85rem 0;
+  }
+  .award-prize { font-size: 0.62rem; }
+
+  /* about */
+  .about-strip { padding: 2rem 0; }
+  .about-inner { grid-template-columns: 1fr; gap: 2rem; }
+  .skill-grid { grid-template-columns: 1fr; }
+
+  /* footer */
+  .footer-inner { flex-direction: column; gap: 0.5rem; }
+  .footer-note { text-align: left !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div>
+        <div class="site-tag">Research & Writing</div>
+        <div class="site-name">Dhyaneesh DS</div>
+      </div>
+      <nav class="nav">
+        <a href="index.html">Home</a>
+        <a href="#archive">Writing</a>
+        <a href="#about">About</a>
+        <a href="https://github.com/dhyaneesh" target="_blank" class="ext">GitHub</a>
+        <a href="https://linkedin.com/in/dhyaneesh-ds" target="_blank" class="ext">LinkedIn</a>
+      </nav>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-kicker">AI Systems · Agent Ecosystems · Data Science</div>
+      <h1>Building at the edge of what AI can do</h1>
+      <p class="hero-desc">CS student at VIT-AP and data science intern at Blend360, where I build LLM pipelines, agentic workflows, and decision intelligence systems for enterprise clients including HSBC and VISA. I write about the things I notice along the way.</p>
+      <div class="hero-links">
+        <a href="openclaw-article.html" class="hero-link primary">Read latest report</a>
+        <a href="mailto:dhyaneeshds@gmail.com" class="hero-link">dhyaneeshds@gmail.com</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="credential">
+        <span class="credential-arrow">→</span>
+        <div>
+          <div class="credential-title">Data Science Intern, Blend360</div>
+          <div class="credential-sub">Dec 2025 – Present · LLM pipelines, 100k+ concurrent inference runs</div>
+        </div>
+      </div>
+      <div class="credential">
+        <span class="credential-arrow">→</span>
+        <div>
+          <div class="credential-title">AIR 31 — Amazon ML Challenge 2025</div>
+          <div class="credential-sub">80,000 participants</div>
+        </div>
+      </div>
+      <div class="credential">
+        <span class="credential-arrow">→</span>
+        <div>
+          <div class="credential-title">Open source contributor</div>
+          <div class="credential-sub">RAGAS · NousResearch · Awesome-JAX-Flax-LLMs</div>
+        </div>
+      </div>
+      <div class="credential">
+        <span class="credential-arrow">→</span>
+        <div>
+          <div class="credential-title">ML Intern, BEAM Security Systems</div>
+          <div class="credential-sub">2024 – 2025 · 40% inference latency reduction, &gt;95% accuracy</div>
+        </div>
+      </div>
+      <div class="credential">
+        <span class="credential-arrow">→</span>
+        <div>
+          <div class="credential-title">B.Tech Computer Science, VIT-AP</div>
+          <div class="credential-sub">2022 – Present · Hyderabad, India</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="featured">
+    <div class="section-label">Latest report</div>
+    <a href="openclaw-article.html" class="featured-card">
+      <div>
+        <div class="featured-issue">Field Report No. 1</div>
+        <div class="featured-date">March 2026</div>
+        <div class="featured-tag-list">
+          <span class="featured-tag">Power law</span>
+          <span class="featured-tag">OpenClaw</span>
+          <span class="featured-tag">Plugin markets</span>
+          <span class="featured-tag">Platform strategy</span>
+        </div>
+      </div>
+      <div>
+        <div class="featured-title">The Power Law of Agent Plugins: What OpenClaw Tells Us About the Future of AI Extensions</div>
+        <p class="featured-deck">A data-driven analysis of the OpenClaw skill ecosystem — what dominates, why it dominates, and what five historical platform markets say will happen next. With live download data from all 31,399 skills on ClawHub and a historically-informed playbook for skill creators.</p>
+        <span class="read-link">Read the report</span>
+      </div>
+    </a>
+  </div>
+</div>
+
+<div class="container" id="archive">
+  <div class="article-list">
+    <div class="section-label">All writing</div>
+    <a href="openclaw-article.html" class="article-row">
+      <div class="article-num">No. 01</div>
+      <div>
+        <div class="article-title">The Power Law of Agent Plugins</div>
+        <div class="article-excerpt">OpenClaw data analysis — top 50 skills, historical analogues, and how to win in early platform markets.</div>
+      </div>
+      <div class="article-date">Mar 2026</div>
+    </a>
+    <!-- Add new articles here, duplicating the article-row block above -->
+  </div>
+</div>
+
+<div class="awards">
+  <div class="container">
+    <div class="section-label">Recognition</div>
+    <div class="award-row">
+      <div>
+        <div class="award-name">Amazon ML Challenge 2025</div>
+        <div class="award-detail">All India Rank 31 out of 80,000 participants</div>
+      </div>
+      <div class="award-prize">AIR 31</div>
+    </div>
+    <div class="award-row">
+      <div>
+        <div class="award-name">OnlineSales.ai National Hackathon</div>
+        <div class="award-detail">Winner</div>
+      </div>
+      <div class="award-prize">₹1,00,000</div>
+    </div>
+    <div class="award-row">
+      <div>
+        <div class="award-name">Blend360 AI4Good Hackathon</div>
+        <div class="award-detail">Runner-up</div>
+      </div>
+      <div class="award-prize">₹50,000</div>
+    </div>
+    <div class="award-row">
+      <div>
+        <div class="award-name">YoGrad Startup Competition</div>
+        <div class="award-detail">Winner</div>
+      </div>
+      <div class="award-prize">₹25,000</div>
+    </div>
+    <div class="award-row">
+      <div>
+        <div class="award-name">Megathon — IIIT Hyderabad</div>
+        <div class="award-detail">Finalist</div>
+      </div>
+      <div class="award-prize">Finalist</div>
+    </div>
+  </div>
+</div>
+
+<div class="about-strip" id="about">
+  <div class="container">
+    <div class="about-inner">
+      <div>
+        <div class="about-title">What I work on</div>
+        <p class="about-body">I build LLM pipelines, retrieval systems, and agentic workflows — mostly in Python, mostly for enterprise use cases. At Blend360 I built a persona generation agent that synthesised financial customer personas at scale, a decision intelligence dashboard for automated narrative reporting, and inference workflows running 100,000+ concurrent runs.</p>
+        <br>
+        <p class="about-body">Outside of work I contribute to open source ML tooling, maintain an open-source JAX/Flax LLM repository, and write about what I find interesting in the AI agent ecosystem. I'm also working on a biomedical knowledge graph pipeline using TransE embeddings for drug-disease link prediction.</p>
+      </div>
+      <div>
+        <div class="about-title">Technical stack</div>
+        <div class="skill-grid">
+          <div class="skill-cell">
+            <div class="skill-label">ML / AI</div>
+            <div class="skill-val">PyTorch, JAX, Flax, LLM pipelines, RAG, NLP, computer vision</div>
+          </div>
+          <div class="skill-cell">
+            <div class="skill-label">Languages</div>
+            <div class="skill-val">Python, Java, C#, Dart (Flutter)</div>
+          </div>
+          <div class="skill-cell">
+            <div class="skill-label">Data & infra</div>
+            <div class="skill-val">RAPIDS, NetworkX, ArangoDB, SQL, AWS, Git</div>
+          </div>
+          <div class="skill-cell">
+            <div class="skill-label">Focus areas</div>
+            <div class="skill-val">Distributed systems, knowledge graphs, agent systems, DSA</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="footer">
+    <div class="footer-inner">
+      <div class="footer-note">
+        Dhyaneesh DS · Hyderabad, India<br>
+        dhyaneeshds@gmail.com · +91 95970-82044
+      </div>
+      <div class="footer-note" style="text-align:right">
+        github.com/dhyaneesh<br>
+        linkedin.com/in/dhyaneesh-ds
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
