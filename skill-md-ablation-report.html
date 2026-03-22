@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="any">
+<title>SKILL.md Ablation: What Makes Agent Skills Reliable</title>
+<meta name="description" content="A field report on 40 SKILL.md files and Anthropic baselines: the design patterns that make agent skills reliable at runtime.">
+<meta property="og:title" content="SKILL.md Ablation: What Makes Agent Skills Reliable">
+<meta property="og:description" content="A structural analysis of 40 skills, 10 design dimensions, and the gap between production-grade prompt injections and improvised wrappers.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0f0e;
+  --paper: #f5f2ec;
+  --cream: #ede9e0;
+  --accent: #c8402a;
+  --accent2: #2a5fc8;
+  --muted: #6b6860;
+  --border: #d4cfc4;
+  --good: #236a47;
+  --warn: #9c6b10;
+  --bad: #a3392b;
+  --panel-bg: #161413;
+  --panel-surface: #1d1a18;
+  --panel-surface-2: #241f1b;
+  --panel-line: #3d3630;
+  --panel-ink: #f1e7d9;
+  --panel-soft: #d1c4b5;
+  --panel-muted: #aa9b8b;
+  --panel-accent: #ff7d5a;
+  --panel-blue: #5f94ff;
+  --panel-green: #69d2a3;
+  --panel-amber: #dca954;
+  --panel-red: #ff9d91;
+  --serif: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+[data-theme="dark"] {
+  --ink: #e5e1d8;
+  --paper: #0d0d0c;
+  --cream: #161514;
+  --accent: #e85d3a;
+  --accent2: #4e82e6;
+  --muted: #807b72;
+  --border: #2a2724;
+  --good: #6fd2a0;
+  --warn: #f1be58;
+  --bad: #f08b7b;
+}
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: .9rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color .3s, border-color .3s, transform .6s cubic-bezier(.4,0,.2,1);
+  line-height: 1;
+  padding: 0;
+}
+.theme-toggle:hover { color: var(--ink); border-color: var(--ink); }
+[data-theme="dark"] .theme-toggle { transform: rotate(180deg); }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 18px; scroll-behavior: smooth; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .4s, color .4s;
+}
+a { color: inherit; }
+code {
+  font-family: var(--mono);
+  font-size: .83em;
+  background: var(--cream);
+  border-radius: 2px;
+  padding: 1px 6px;
+}
+svg { max-width: 100%; display: block; }
+.figure svg { width: 100%; height: auto; }
+
+.container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+.container--wide { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+
+.masthead {
+  border-bottom: 2px solid var(--ink);
+  padding: 1.5rem 0 1rem;
+  margin-bottom: 0;
+}
+.masthead-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.masthead-actions {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.masthead-home {
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.masthead-home:hover { color: var(--ink); }
+.site-tag {
+  font-family: var(--mono);
+  font-size: .65rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.site-name {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.issue-meta {
+  font-family: var(--mono);
+  font-size: .6rem;
+  color: var(--muted);
+  text-align: right;
+}
+
+.hero {
+  padding: 5rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+}
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: .65rem;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+.hero-kicker::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: -.04em;
+  margin-bottom: 1.75rem;
+  max-width: 880px;
+}
+.hero h1 em {
+  font-style: normal;
+  font-weight: 900;
+  color: var(--accent);
+}
+.hero-deck {
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--muted);
+  max-width: 680px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+.byline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  font-family: var(--mono);
+  font-size: .62rem;
+  color: var(--muted);
+  letter-spacing: .05em;
+}
+.byline-sep { color: var(--border); }
+
+.article-body { padding: 4rem 0; }
+
+.section-marker {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding-top: 4rem;
+}
+.section-marker:first-child { padding-top: 0; }
+.section-num {
+  font-family: var(--mono);
+  font-size: .6rem;
+  color: var(--accent);
+  letter-spacing: .1em;
+  min-width: 40px;
+}
+.section-rule { flex: 1; height: 1px; background: var(--border); }
+.section-tag {
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h2 {
+  font-family: var(--serif);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -.02em;
+  margin-bottom: 1.5rem;
+}
+h3 {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -.015em;
+  margin: 2.5rem 0 1rem;
+}
+p {
+  margin-bottom: 1.4rem;
+  font-size: 1rem;
+  font-weight: 300;
+}
+p strong { font-weight: 500; }
+
+.pull-quote {
+  border-left: 3px solid var(--accent);
+  padding: .5rem 0 .5rem 2rem;
+  margin: 3rem 0;
+}
+.pull-quote p {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 300;
+  line-height: 1.45;
+  letter-spacing: -.02em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.callout {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 1.5rem 2rem;
+  margin: 2.5rem 0;
+}
+.callout-label {
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: .75rem;
+}
+.callout p { font-size: .9rem; margin-bottom: .75rem; }
+.callout p:last-child { margin-bottom: 0; }
+
+.figure {
+  margin: 3rem -1rem;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: 2px;
+}
+.figure-title {
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+.figure-title span { color: var(--accent); }
+.figure-caption {
+  font-size: .78rem;
+  color: var(--muted);
+  margin-top: 1.25rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+.figure-scroll {
+  overflow-x: visible;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+.figure-diagram-desktop { display: block; }
+.figure-diagram-mobile { display: none; width: 100%; }
+
+.analysis-panel {
+  background: var(--panel-bg);
+  border: 1px solid #292420;
+  border-radius: 14px;
+  padding: 1.1rem;
+  color: var(--panel-ink);
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.95rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--panel-line);
+}
+.panel-header-left {
+  display: grid;
+  gap: 0.35rem;
+}
+.panel-kicker {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--panel-accent);
+}
+.panel-title {
+  font-family: var(--serif);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--panel-ink);
+}
+.panel-note {
+  max-width: 380px;
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--panel-soft);
+}
+.panel-definition-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.95rem;
+}
+.panel-definition {
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+}
+.panel-definition dt {
+  font-family: var(--mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--panel-accent);
+}
+.panel-definition dd {
+  margin-top: 0.2rem;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--panel-soft);
+}
+.panel-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.panel-tag {
+  font-family: var(--mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.05em;
+  color: var(--panel-muted);
+  padding: 3px 8px;
+  border: 1px solid var(--panel-line);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.02);
+}
+
+.route-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.route-panel-card {
+  min-height: 100%;
+  background: var(--panel-surface-2);
+  border: 1.5px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.75rem;
+}
+.route-panel-card--direct { border-color: rgba(105, 210, 163, 0.6); }
+.route-panel-card--adaptive { border-color: rgba(95, 148, 255, 0.62); }
+.route-panel-card--research { border-color: rgba(232, 178, 74, 0.65); }
+.route-mode {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.route-mode--direct { color: var(--panel-green); }
+.route-mode--adaptive { color: var(--panel-blue); }
+.route-mode--research { color: var(--panel-amber); }
+.route-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--panel-ink);
+}
+.route-intro {
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--panel-muted);
+}
+.route-section {
+  border-top: 1px solid var(--panel-line);
+  padding-top: 0.7rem;
+}
+.route-section-label {
+  font-family: var(--mono);
+  font-size: 0.53rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--panel-muted);
+  margin-bottom: 0.45rem;
+}
+.route-list {
+  list-style: none;
+  display: grid;
+  gap: 0.42rem;
+}
+.route-list li {
+  padding: 0.45rem 0.5rem;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  font-size: 0.73rem;
+  line-height: 1.45;
+  color: var(--panel-soft);
+}
+.route-list li strong {
+  display: block;
+  margin-bottom: 0.15rem;
+  font-family: var(--mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--panel-ink);
+  font-weight: 500;
+}
+.route-bridge {
+  margin-top: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border: 1px solid rgba(255, 110, 69, 0.55);
+  border-radius: 10px;
+  background: rgba(255, 110, 69, 0.08);
+}
+.route-bridge strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--panel-accent);
+}
+.route-bridge p {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--panel-soft);
+}
+
+.tier-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.tier-panel-card {
+  min-height: 100%;
+  background: var(--panel-surface-2);
+  border: 1.5px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+.tier-panel-card--t1 { border-color: rgba(105, 210, 163, 0.58); }
+.tier-panel-card--t2 { border-color: rgba(95, 148, 255, 0.6); }
+.tier-panel-card--t3 { border-color: rgba(232, 178, 74, 0.62); }
+.tier-panel-card--t4 { border-color: rgba(255, 143, 130, 0.62); }
+.tier-panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.7rem;
+}
+.tier-panel-name {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.tier-panel-name--t1 { color: var(--panel-green); }
+.tier-panel-name--t2 { color: var(--panel-blue); }
+.tier-panel-name--t3 { color: var(--panel-amber); }
+.tier-panel-name--t4 { color: var(--panel-red); }
+.tier-panel-status {
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--panel-ink);
+  font-weight: 600;
+  text-align: right;
+}
+.tier-panel-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+.tier-metric {
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  padding: 0.6rem 0.65rem;
+}
+.tier-metric-label {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--panel-muted);
+}
+.tier-metric-value {
+  margin-top: 0.25rem;
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--panel-ink);
+}
+.tier-metric-copy {
+  margin-top: 0.2rem;
+  font-size: 0.66rem;
+  line-height: 1.4;
+  color: var(--panel-muted);
+}
+.tier-panel-copy {
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--panel-soft);
+}
+.tier-panel-block {
+  border-top: 1px solid var(--panel-line);
+  padding-top: 0.7rem;
+}
+.tier-panel-block-label {
+  font-family: var(--mono);
+  font-size: 0.53rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--panel-muted);
+  margin-bottom: 0.4rem;
+}
+
+.matrix-shell {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+.matrix-y-label,
+.matrix-x-label {
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  background: var(--panel-surface-2);
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--panel-soft);
+}
+.matrix-y-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+.matrix-main {
+  display: grid;
+  gap: 0.65rem;
+}
+.matrix-x-label {
+  padding: 0.6rem 0.8rem;
+  text-align: center;
+}
+.matrix-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.matrix-cell {
+  min-height: 168px;
+  background: var(--panel-surface-2);
+  border: 1.5px solid var(--panel-line);
+  border-radius: 12px;
+  padding: 0.85rem;
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+}
+.matrix-cell--tl { border-color: rgba(105, 210, 163, 0.58); }
+.matrix-cell--tr { border-color: rgba(255, 110, 69, 0.62); }
+.matrix-cell--br { border-color: rgba(95, 148, 255, 0.6); }
+.matrix-cell--bl { border-color: rgba(255, 143, 130, 0.62); }
+.matrix-cell-kicker {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--panel-muted);
+}
+.matrix-cell-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--panel-ink);
+}
+.matrix-cell p {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.52;
+  color: var(--panel-soft);
+}
+
+.panel-mobile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.panel-mobile-card {
+  background: var(--panel-surface-2);
+  border: 1px solid var(--panel-line);
+  border-radius: 10px;
+  padding: 0.85rem 0.9rem;
+}
+.panel-mobile-card--accent { border-color: rgba(255, 110, 69, 0.58); }
+.panel-mobile-card--green { border-color: rgba(105, 210, 163, 0.58); }
+.panel-mobile-card--blue { border-color: rgba(95, 148, 255, 0.58); }
+.panel-mobile-card--amber { border-color: rgba(232, 178, 74, 0.62); }
+.panel-mobile-card--red { border-color: rgba(255, 143, 130, 0.62); }
+.panel-mobile-kicker {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--panel-accent);
+  margin-bottom: 0.35rem;
+}
+.panel-mobile-title {
+  font-size: 0.96rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--panel-ink);
+}
+.panel-mobile-meta {
+  margin-top: 0.25rem;
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--panel-muted);
+}
+.panel-mobile-copy {
+  margin-top: 0.45rem;
+  font-size: 0.81rem;
+  line-height: 1.5;
+  color: var(--panel-soft);
+}
+.panel-mobile-list {
+  list-style: none;
+  margin-top: 0.55rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.panel-mobile-list li {
+  padding: 0.42rem 0.5rem;
+  border: 1px solid var(--panel-line);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--panel-soft);
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2.5rem 0;
+}
+.stat-cell {
+  background: var(--paper);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: .56rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .5rem;
+  line-height: 1.4;
+  min-height: 2.4em;
+}
+.stat-val {
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.03em;
+  color: var(--ink);
+  margin-bottom: .4rem;
+}
+.stat-sub {
+  font-size: .72rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.compare-card {
+  background: var(--paper);
+  padding: 1.25rem 1.5rem;
+}
+.compare-label {
+  font-family: var(--mono);
+  font-size: .58rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  margin-bottom: .75rem;
+}
+.compare-label.good { color: var(--good); }
+.compare-label.bad { color: var(--bad); }
+.compare-name {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin-bottom: .6rem;
+}
+.compare-card p {
+  font-size: .84rem;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 0;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0 2rem;
+}
+.report-table th {
+  font-family: var(--mono);
+  font-size: .6rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .6rem .75rem;
+  border-bottom: 1.5px solid var(--ink);
+  text-align: left;
+  font-weight: 400;
+}
+.report-table td {
+  padding: .7rem .75rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .82rem;
+  line-height: 1.55;
+  vertical-align: top;
+}
+.report-table tr:last-child td { border-bottom: none; }
+.report-table td:first-child {
+  font-family: var(--mono);
+  font-size: .68rem;
+  color: var(--muted);
+}
+.report-table td:nth-child(2) { font-weight: 500; color: var(--ink); }
+.report-table td.hl-good { color: var(--good); font-weight: 500; }
+.report-table td.hl-bad { color: var(--bad); font-weight: 500; }
+
+.dimension-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.dimension-card {
+  background: var(--paper);
+  padding: 1.15rem 1.3rem;
+  display: grid;
+  grid-template-columns: 2.2rem 1fr;
+  gap: .9rem;
+  align-items: start;
+}
+.dimension-num {
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--accent);
+  letter-spacing: .08em;
+}
+.dimension-card h3 {
+  font-size: .98rem;
+  line-height: 1.3;
+  margin: 0 0 .35rem;
+}
+.dimension-card p {
+  font-size: .82rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.surface-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.surface-card {
+  background: var(--paper);
+  padding: 1.2rem 1.25rem;
+}
+.surface-kicker {
+  font-family: var(--mono);
+  font-size: .58rem;
+  color: var(--accent);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-bottom: .45rem;
+}
+.surface-card h3 {
+  font-size: 1rem;
+  margin: 0 0 .4rem;
+}
+.surface-card p {
+  font-size: .82rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin: 2rem 0;
+}
+.tier-card {
+  background: var(--paper);
+  padding: 1.2rem 1.25rem;
+}
+.tier-kicker {
+  font-family: var(--mono);
+  font-size: .56rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: .35rem;
+}
+.tier-kicker.t1 { color: var(--good); }
+.tier-kicker.t2 { color: var(--accent2); }
+.tier-kicker.t3 { color: var(--warn); }
+.tier-kicker.t4 { color: var(--bad); }
+.tier-count {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  line-height: 1;
+  margin-bottom: .45rem;
+}
+.tier-card p {
+  font-size: .8rem;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-bottom: .75rem;
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  font-family: var(--mono);
+  font-size: .56rem;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+
+.score-board { margin: 2rem 0; }
+.score-row {
+  display: grid;
+  grid-template-columns: 240px 1fr 58px;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: .8rem;
+}
+.score-label {
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--muted);
+}
+.score-track {
+  height: 8px;
+  background: var(--border);
+  overflow: hidden;
+  border-radius: 999px;
+}
+.score-fill { height: 100%; border-radius: 999px; }
+.score-fill.t1 { background: linear-gradient(90deg, var(--good), #3ea46f); }
+.score-fill.t2 { background: linear-gradient(90deg, var(--accent2), #6c9df2); }
+.score-fill.t3 { background: linear-gradient(90deg, var(--warn), #d39a2f); }
+.score-fill.t4 { background: linear-gradient(90deg, var(--bad), #d96b5b); }
+.score-value {
+  font-family: var(--mono);
+  font-size: .72rem;
+  color: var(--ink);
+  text-align: right;
+}
+
+.checklist {
+  list-style: none;
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.checklist li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: .85rem;
+  padding: .95rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.chk {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: .72rem;
+  line-height: 1;
+}
+.chk.pass {
+  color: var(--good);
+  border-color: color-mix(in srgb, var(--good) 50%, var(--border));
+  background: color-mix(in srgb, var(--good) 8%, var(--paper));
+}
+.chk.fail {
+  color: var(--bad);
+  border-color: color-mix(in srgb, var(--bad) 50%, var(--border));
+  background: color-mix(in srgb, var(--bad) 8%, var(--paper));
+}
+.checklist li span {
+  font-size: .88rem;
+  color: var(--ink);
+  line-height: 1.55;
+}
+
+.m-flow-stack { display: flex; flex-direction: column; gap: .6rem; }
+.m-step-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: .75rem .95rem;
+}
+.m-step-card--accent {
+  border-color: var(--accent);
+  background: rgba(200, 64, 42, 0.07);
+}
+[data-theme="dark"] .m-step-card--accent { background: rgba(232, 93, 58, 0.1); }
+.m-step-num {
+  font-family: var(--mono);
+  font-size: .62rem;
+  color: var(--accent);
+  letter-spacing: .08em;
+  margin-bottom: .35rem;
+}
+.m-step-title {
+  font-size: .95rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.m-step-sub {
+  font-size: .84rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin-top: .2rem;
+}
+.m-step-arrow {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: .65rem;
+  color: var(--muted);
+  line-height: 1.2;
+}
+.m-tier-list,
+.m-axis-list {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.m-tier-card,
+.m-axis-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  padding: .9rem 1rem;
+}
+.m-tier-head,
+.m-axis-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .35rem;
+}
+.m-tier-title,
+.m-axis-title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.m-tier-meta,
+.m-axis-meta {
+  font-family: var(--mono);
+  font-size: .58rem;
+  color: var(--muted);
+  letter-spacing: .06em;
+}
+.m-tier-card p,
+.m-axis-card p {
+  margin: 0;
+  font-size: .84rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.article-footer {
+  border-top: 2px solid var(--ink);
+  padding: 2rem 0 4rem;
+  margin-top: 4rem;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.footer-note {
+  font-family: var(--mono);
+  font-size: .62rem;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 480px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.entrance {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: fadeUp .7s cubic-bezier(.16,1,.3,1) forwards;
+}
+.entrance-d1 { animation-delay: .12s; }
+.entrance-d2 { animation-delay: .24s; }
+.entrance-d3 { animation-delay: .36s; }
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.figure { transition: transform .35s cubic-bezier(.16,1,.3,1), box-shadow .35s ease, background-color .4s, border-color .4s; }
+@media (hover: hover) and (pointer: fine) {
+  .figure:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,.06); }
+}
+.callout { transition: transform .3s ease, box-shadow .3s ease; }
+@media (hover: hover) and (pointer: fine) {
+  .callout:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  html { scroll-behavior: auto; }
+}
+
+@media (min-width: 1100px) {
+  .container { max-width: 1060px; }
+  .container--wide { max-width: 1330px; }
+  .hero h1 { max-width: 1000px; }
+  .hero-deck { max-width: 760px; }
+  .stat-cell { padding: 1.5rem 2rem; }
+  .stat-val { font-size: 2.2rem; }
+  .figure { margin: 3.5rem -2rem; padding: 2.5rem; }
+}
+
+@media (min-width: 1440px) {
+  .container { max-width: 1240px; padding: 0 3rem; }
+  .container--wide { max-width: 1480px; padding: 0 3rem; }
+  .hero { padding: 6rem 0 3.5rem; }
+  .hero h1 { font-size: 3.8rem; max-width: 1080px; }
+  .hero-deck { font-size: 1.2rem; max-width: 820px; }
+  .byline { font-size: .68rem; gap: 2rem; }
+  h2 { font-size: 2.4rem; }
+  h3 { font-size: 1.35rem; }
+  p { font-size: 1.05rem; }
+  .pull-quote p { font-size: 1.5rem; }
+  .article-body { padding: 5rem 0; }
+  .section-marker { padding-top: 5rem; margin-bottom: 3.5rem; }
+  .figure { margin: 4rem -3rem; padding: 3rem; }
+  .callout { padding: 2rem 2.5rem; }
+}
+
+@media (max-width: 900px) {
+  .surface-grid { grid-template-columns: 1fr 1fr; }
+  .route-panel-grid { grid-template-columns: 1fr; }
+  .tier-panel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .matrix-shell { grid-template-columns: 1fr; }
+  .matrix-y-label {
+    writing-mode: horizontal-tb;
+    transform: none;
+    padding: 0.6rem 0.8rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .masthead-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .masthead-actions {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: .85rem 1.5rem;
+    width: 100%;
+    align-items: center;
+  }
+  .masthead-home {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .theme-toggle {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .masthead-actions .issue-meta {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    text-align: left;
+  }
+  .container--wide { padding: 0 1.5rem; }
+  .figure {
+    margin: 2.5rem 0;
+    overflow-x: hidden;
+    overflow-y: visible;
+    max-width: 100%;
+  }
+  .figure-scroll {
+    overflow-x: hidden;
+    max-width: 100%;
+    width: 100%;
+  }
+  .figure-scroll svg {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .panel-definition-row,
+  .matrix-grid { grid-template-columns: 1fr; }
+  .dimension-grid { grid-template-columns: 1fr; }
+  .surface-grid { grid-template-columns: 1fr 1fr; }
+  .tier-grid { grid-template-columns: repeat(2, 1fr); }
+  .score-row { grid-template-columns: 200px 1fr 52px; }
+}
+
+@media (max-width: 600px) {
+  html { font-size: 16px; overflow-x: hidden; }
+  body { overflow-x: hidden; }
+  .container { padding: 0 1.25rem; }
+  .container--wide { padding: 0 1.25rem; }
+
+  .masthead { padding: 1.2rem 0 1rem; }
+  .masthead-inner { gap: .9rem; }
+  .masthead-actions { gap: .75rem 1.25rem; }
+  .issue-meta { font-size: .62rem; line-height: 1.55; }
+  .theme-toggle { width: 22px; height: 22px; font-size: .7rem; }
+
+  .hero { padding: 2.5rem 0 2rem; }
+  .hero h1 { font-size: 1.75rem; margin-bottom: 1rem; line-height: 1.12; }
+  .hero-deck { font-size: .92rem; margin-bottom: 1.5rem; line-height: 1.55; }
+  .byline { flex-wrap: wrap; gap: .4rem .75rem; font-size: .58rem; }
+  .byline-sep { display: none; }
+
+  .section-marker { padding-top: 2.5rem; margin-bottom: 1.75rem; }
+  .section-tag { display: none; }
+  .article-body { padding: 2rem 0; }
+  h2 { font-size: 1.4rem; margin-bottom: 1.25rem; }
+  h3 { font-size: 1.05rem; margin: 1.75rem 0 .75rem; }
+  p { font-size: .92rem; line-height: 1.65; margin-bottom: 1.2rem; }
+
+  .pull-quote { padding-left: 1.25rem; margin: 2rem 0; border-left-width: 2px; }
+  .pull-quote p { font-size: 1.05rem; line-height: 1.4; }
+
+  .callout { padding: 1.15rem; margin: 2rem 0; }
+  .callout-label { font-size: .56rem; margin-bottom: .6rem; }
+  .callout p { font-size: .84rem; line-height: 1.6; }
+
+  .figure {
+    margin: 2rem 0;
+    padding: 1.15rem 1rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    overflow-x: hidden;
+    max-width: 100%;
+  }
+  .figure-title { font-size: .65rem; margin-bottom: 1rem; line-height: 1.45; }
+  .figure-caption { font-size: .74rem; margin-top: 1rem; line-height: 1.5; }
+  .figure-scroll {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  .figure-scroll svg {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+  .figure-diagram-desktop { display: none !important; }
+  .figure-diagram-mobile { display: block !important; }
+  .analysis-panel {
+    padding: 0.95rem;
+    border-radius: 12px;
+  }
+  .panel-header {
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.75rem;
+  }
+  .panel-title { font-size: 0.96rem; }
+  .panel-note { max-width: none; font-size: 0.72rem; }
+  .panel-definition-row { gap: 0.55rem; margin-bottom: 0.8rem; }
+  .panel-definition { padding: 0.6rem 0.65rem; }
+  .panel-definition dd { font-size: 0.72rem; }
+  .route-panel-card,
+  .tier-panel-card,
+  .matrix-cell { padding: 0.75rem; }
+  .route-title,
+  .matrix-cell-title { font-size: 0.92rem; }
+  .route-intro,
+  .route-list li,
+  .tier-panel-copy,
+  .matrix-cell p { font-size: 0.74rem; }
+  .tier-panel-grid { grid-template-columns: 1fr; }
+  .tier-panel-metrics { gap: 0.45rem; }
+  .tier-metric { padding: 0.55rem 0.6rem; }
+  .tier-metric-value { font-size: 1.18rem; }
+  .panel-mobile-title { font-size: 0.92rem; }
+  .panel-mobile-copy,
+  .panel-mobile-list li { font-size: 0.78rem; }
+
+  .stat-row { grid-template-columns: repeat(2, 1fr); margin: 2rem 0; }
+  .stat-val { font-size: 1.4rem; }
+  .stat-label { min-height: auto; font-size: .52rem; }
+  .stat-sub { font-size: .68rem; }
+  .stat-cell { padding: 1rem 1.1rem; }
+
+  .compare-grid,
+  .surface-grid,
+  .tier-grid { grid-template-columns: 1fr; }
+  .compare-card,
+  .surface-card,
+  .tier-card { padding: 1rem 1.05rem; }
+  .dimension-card { padding: 1rem 1.05rem; }
+
+  .report-table,
+  .report-table tbody,
+  .report-table tr,
+  .report-table td { display: block; width: 100%; }
+  .report-table thead { display: none; }
+  .report-table tr {
+    padding: .9rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .report-table td {
+    border: none;
+    padding: .18rem 0;
+  }
+  .report-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--mono);
+    font-size: .54rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .12rem;
+  }
+
+  .score-row {
+    grid-template-columns: 1fr;
+    gap: .35rem;
+    margin-bottom: 1rem;
+  }
+  .score-label,
+  .score-value { text-align: left; }
+
+  .checklist li {
+    grid-template-columns: 24px 1fr;
+    gap: .7rem;
+    padding: .85rem 0;
+  }
+  .chk {
+    width: 24px;
+    height: 24px;
+    font-size: .66rem;
+  }
+  .checklist li span { font-size: .84rem; }
+
+  .m-tier-head,
+  .m-axis-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .2rem;
+  }
+}
+</style>
+<script>(function(){var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches))document.documentElement.setAttribute('data-theme','dark')})();</script>
+</head>
+<body>
+
+<div class="container">
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div>
+        <div class="site-tag">Analysis & Commentary</div>
+        <div class="site-name">Dhyaneesh DS</div>
+      </div>
+      <div class="masthead-actions">
+        <a href="index.html" class="masthead-home">← Home</a>
+        <div class="issue-meta">
+          March 2026<br>
+          Field Report No. 3
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">◐</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <div class="hero-kicker entrance">Field Report</div>
+    <h1 class="entrance entrance-d1"><em>SKILL.md</em> Ablation: What Makes Agent Skills Reliable</h1>
+    <p class="hero-deck entrance entrance-d2">A corpus of 40 skills shows that the performance gap is not about topic coverage. It is about whether the file encodes the decisions the model would otherwise improvise: when to activate, how to branch, what never to do, what to disclose, where state lives, and how results should return.</p>
+    <div class="byline entrance entrance-d3">
+      <span>40 scraped skills</span>
+      <span class="byline-sep">·</span>
+      <span>Anthropic production baseline</span>
+      <span class="byline-sep">·</span>
+      <span>10 technical dimensions</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="section-marker reveal">
+  <span class="section-num">01 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Executive Summary</span>
+</div>
+
+<h2>The Quality Gap Is Structural, Not Topical</h2>
+
+<p>The strongest skills in the corpus do not merely expose a tool. They remove runtime ambiguity. They turn decisions the model would otherwise infer on the fly into explicit operating surfaces: activation boundaries, routing rules, error recovery, negative constraints, output formats, and state lifecycles.</p>
+
+<p>The weakest skills fail in the opposite direction. They look usable because the topic is present, but the agent is left to improvise everything that matters after the happy path. That gap compounds with longer context windows, shifting model behavior, and pressure-filled situations where the base model is most tempted to guess.</p>
+
+<div class="stat-row reveal">
+  <div class="stat-cell">
+    <div class="stat-label">Corpus</div>
+    <div class="stat-val">40</div>
+    <div class="stat-sub">Full read of 40 public skills across distinct packages.</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Dimensions</div>
+    <div class="stat-val">10</div>
+    <div class="stat-sub">Activation, routing, failure handling, state, format, and more.</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Quality Gap</div>
+    <div class="stat-val">10×–20×</div>
+    <div class="stat-sub">Top-tier skills compress ambiguity; low-tier skills expand it.</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Largest Delta</div>
+    <div class="stat-val">6</div>
+    <div class="stat-sub">The missing decision surfaces that most wrappers never specify.</div>
+  </div>
+</div>
+
+<div class="compare-grid reveal">
+  <div class="compare-card">
+    <div class="compare-label good">Top Tier</div>
+    <div class="compare-name">Encode decisions the model can execute</div>
+    <p>Reliable skills narrow the action space. They tell the agent when to activate, how to branch, where to write, what to return, and what failures should trigger escalation instead of another blind attempt.</p>
+  </div>
+  <div class="compare-card">
+    <div class="compare-label bad">Bottom Tier</div>
+    <div class="compare-name">Expose tools but outsource judgment</div>
+    <p>Weak skills read like wrappers or man pages. They describe capabilities, but the model still has to infer the operational contract in real time, which is exactly where drift and unsafe improvisation show up.</p>
+  </div>
+</div>
+
+<div class="pull-quote reveal">
+  <p>"The best skill files are not richer descriptions. They are executable decision systems written in natural language."</p>
+</div>
+
+<div class="section-marker reveal">
+  <span class="section-num">02 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">The 10 Dimensions</span>
+</div>
+
+<h2>Ten Dimensions Separate Prompt Injections From Operating Manuals</h2>
+
+<p>The 10 dimensions below are the recurring fault lines in the corpus. Together they describe whether a skill behaves like a precise runtime contract or a loose essay about a tool.</p>
+
+<div class="dimension-grid reveal">
+  <div class="dimension-card">
+    <div class="dimension-num">01</div>
+    <div>
+      <h3>Activation Boundaries</h3>
+      <p>Clear "use this / do not use this" logic prevents accidental invocation in the wrong context.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">02</div>
+    <div>
+      <h3>Selective Loading</h3>
+      <p>Good skills route to sub-files or references instead of forcing every deep detail into every invocation.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">03</div>
+    <div>
+      <h3>Intent and Complexity Routing</h3>
+      <p>The skill should branch explicitly between direct execution, adaptive loops, and longer multi-step or research work.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">04</div>
+    <div>
+      <h3>Error Handling</h3>
+      <p>Reliable skills specify recovery paths, stop conditions, and when to escalate instead of retrying blindly.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">05</div>
+    <div>
+      <h3>Negative Constraints</h3>
+      <p>High-risk actions need explicit "never" and "do not" rules, not just optimistic examples.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">06</div>
+    <div>
+      <h3>Security Disclosure</h3>
+      <p>The skill should make the data boundary legible: what leaves the machine, what stays local, and what is retained elsewhere.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">07</div>
+    <div>
+      <h3>State Architecture</h3>
+      <p>Any persistence mechanism needs location, size, promotion, and demotion rules or it decays into unbounded context sludge.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">08</div>
+    <div>
+      <h3>Cross-Skill Contracts</h3>
+      <p>Related skills should declare typed reads, writes, and preconditions instead of leaving coordination implicit.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">09</div>
+    <div>
+      <h3>Output Formats</h3>
+      <p>Different modes should return different structures. A browse action and a deep-dive report should not share one fuzzy template.</p>
+    </div>
+  </div>
+  <div class="dimension-card">
+    <div class="dimension-num">10</div>
+    <div>
+      <h3>Frontmatter Metadata</h3>
+      <p>Bins, environment variables, OS constraints, and install steps should be machine-readable rather than buried in prose.</p>
+    </div>
+  </div>
+</div>
+
+<p>Most of the quality gap in the corpus is not evenly distributed across all ten dimensions. It clusters around the dimensions that make the model's decision process observable and stable under pressure.</p>
+
+<div class="section-marker reveal">
+  <span class="section-num">03 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Dimension Breakdown</span>
+</div>
+
+<h2>Where the Gaps Actually Show Up</h2>
+
+<h3>Selective loading beats inline encyclopedias</h3>
+
+<p>The corpus repeatedly shows that long, always-loaded skill bodies are not a sign of rigor. They are usually a sign that the author has not separated routing from reference material. The best files stay lightweight at invocation time and defer depth to targeted sub-files or reference sections.</p>
+
+<table class="report-table reveal">
+  <thead>
+    <tr>
+      <th>Example</th>
+      <th>Always-loaded footprint</th>
+      <th>What works</th>
+      <th>Failure mode</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td data-label="Example">ivangdavila__git</td>
+      <td data-label="Always-loaded footprint">141 lines</td>
+      <td data-label="What works">Quick-reference rules route the agent to deeper files only when a task actually needs them.</td>
+      <td data-label="Failure mode" class="hl-good">Depth is conditional, not paid up front.</td>
+    </tr>
+    <tr>
+      <td data-label="Example">Anthropic production skills</td>
+      <td data-label="Always-loaded footprint">Concise shell + references</td>
+      <td data-label="What works">Core behavior stays short, while richer examples sit behind secondary references.</td>
+      <td data-label="Failure mode" class="hl-good">The model can stay oriented without carrying dead weight.</td>
+    </tr>
+    <tr>
+      <td data-label="Example">byungkyu__api-gateway</td>
+      <td data-label="Always-loaded footprint">664 lines</td>
+      <td data-label="What works">Broad routing coverage exists, but it is paid on every invocation regardless of relevance.</td>
+      <td data-label="Failure mode" class="hl-bad">The model loads a service directory before it knows whether the service matters.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Routing and failure handling remove improvisation</h3>
+
+<p>The most technically sophisticated skills in the corpus succeed because they make branching explicit without pretending the boundary is perfectly crisp. In practice, the useful distinction is not "simple versus deep" by call count. It is whether uncertainty, branching, and execution shape imply a direct path, an adaptive loop, or a longer research workflow.</p>
+
+</div>
+</div>
+
+<div class="container--wide">
+  <div class="figure reveal" id="complexity-routing">
+    <div class="figure-title"><span>Fig. 01</span> Route by decision criteria, not by a false binary</div>
+    <div class="figure-diagram-desktop">
+      <div class="analysis-panel" role="img" aria-label="A routing panel that triages requests by uncertainty, branching, and execution shape into direct, adaptive, or research paths.">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-kicker">Routing Panel</div>
+            <div class="panel-title">Expose the cues that choose the execution pattern</div>
+          </div>
+          <div class="panel-note">This is a triage panel, not a crisp classifier. The point is to name the signals a skill should surface before the model starts improvising.</div>
+        </div>
+        <div class="panel-definition-row">
+          <dl class="panel-definition">
+            <dt>Uncertainty</dt>
+            <dd>How much ambiguity remains after the request is parsed. High uncertainty usually demands checkpoints, not a fixed script.</dd>
+          </dl>
+          <dl class="panel-definition">
+            <dt>Branching</dt>
+            <dd>How many conditional paths, retries, or edge-case pivots are likely once the task actually starts interacting with tools.</dd>
+          </dl>
+          <dl class="panel-definition">
+            <dt>Execution shape</dt>
+            <dd>Whether the work is a direct bounded operation, an adaptive loop with monitoring, or a longer synthesis-heavy workflow.</dd>
+          </dl>
+        </div>
+        <div class="route-panel-grid">
+          <div class="route-panel-card route-panel-card--direct">
+            <div>
+              <div class="route-mode route-mode--direct">Direct Path</div>
+              <div class="route-title">Low ambiguity, bounded steps</div>
+              <div class="route-intro">Use when the task shape is already known and the failure surface is narrow enough to keep the loop short.</div>
+            </div>
+            <div class="route-section">
+              <div class="route-section-label">Signals</div>
+              <ul class="route-list">
+                <li><strong>Input shape</strong>Known schema, known tool, known success condition.</li>
+                <li><strong>Branching load</strong>Very few meaningful pivots once execution begins.</li>
+                <li><strong>Monitoring need</strong>Lightweight validation is enough after each step.</li>
+              </ul>
+            </div>
+            <div class="route-section">
+              <div class="route-section-label">Typical stance</div>
+              <ul class="route-list">
+                <li><strong>Workflow</strong>Short deterministic chain with explicit exit criteria.</li>
+                <li><strong>Guardrail</strong>Return mode-specific output instead of speculative elaboration.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="route-panel-card route-panel-card--adaptive">
+            <div>
+              <div class="route-mode route-mode--adaptive">Adaptive Path</div>
+              <div class="route-title">Conditional loop with checkpoints</div>
+              <div class="route-intro">Use when the task is still tractable, but only if the skill makes retries, branching, and intermediate validation visible.</div>
+            </div>
+            <div class="route-section">
+              <div class="route-section-label">Signals</div>
+              <ul class="route-list">
+                <li><strong>Input shape</strong>Moderate ambiguity or multiple plausible submodes.</li>
+                <li><strong>Branching load</strong>Retries, conditional tool choices, or stateful dependencies are expected.</li>
+                <li><strong>Monitoring need</strong>Each pass should emit visible checkpoints before the next one starts.</li>
+              </ul>
+            </div>
+            <div class="route-section">
+              <div class="route-section-label">Typical stance</div>
+              <ul class="route-list">
+                <li><strong>Workflow</strong>Plan → act → inspect → adapt, with bounded failure ladders.</li>
+                <li><strong>Guardrail</strong>Do not treat this as “simple” just because it starts with one tool call.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="route-panel-card route-panel-card--research">
+            <div>
+              <div class="route-mode route-mode--research">Research Path</div>
+              <div class="route-title">Longer horizon, synthesis-heavy work</div>
+              <div class="route-intro">Use when the skill must manage open questions, multiple evidence sources, or a wider coordination surface.</div>
+            </div>
+            <div class="route-section">
+              <div class="route-section-label">Signals</div>
+              <ul class="route-list">
+                <li><strong>Input shape</strong>Open-ended objective or evidence gathering across sources.</li>
+                <li><strong>Branching load</strong>Subtasks may fork, merge, and revise as new information arrives.</li>
+                <li><strong>Monitoring need</strong>Progress reports, stop conditions, and degraded modes must be explicit.</li>
+              </ul>
+            </div>
+            <div class="route-section">
+              <div class="route-section-label">Typical stance</div>
+              <ul class="route-list">
+                <li><strong>Workflow</strong>Scoped subquestions, synthesis checkpoints, and explicit delivery format.</li>
+                <li><strong>Guardrail</strong>Async can help here, but it is an implementation choice, not the definition of depth.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="route-bridge">
+          <strong>Why this matters</strong>
+          <p>A strong skill does not claim a magic complexity threshold. It exposes the cues, the monitoring shape, and the failure handling needed for each path, so the model can execute with discipline instead of intuition.</p>
+        </div>
+      </div>
+    </div>
+    <div class="figure-diagram-mobile" aria-label="Routing panel mobile fallback">
+      <div class="analysis-panel">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-kicker">Routing Panel</div>
+            <div class="panel-title">Choose a path by visible cues</div>
+          </div>
+        </div>
+        <div class="panel-mobile-stack">
+          <div class="panel-mobile-card panel-mobile-card--accent">
+            <div class="panel-mobile-kicker">Decision cues</div>
+            <div class="panel-mobile-title">Uncertainty, branching, and execution shape</div>
+            <div class="panel-mobile-copy">The routing surface should explain why a task needs a direct path, an adaptive loop, or a research workflow. It should not collapse to call count.</div>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--green">
+            <div class="panel-mobile-kicker">Direct path</div>
+            <div class="panel-mobile-title">Low ambiguity, bounded steps</div>
+            <ul class="panel-mobile-list">
+              <li>Known schema and narrow failure surface.</li>
+              <li>Short deterministic chain with explicit exit criteria.</li>
+            </ul>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--blue">
+            <div class="panel-mobile-kicker">Adaptive path</div>
+            <div class="panel-mobile-title">Conditional loop with checkpoints</div>
+            <ul class="panel-mobile-list">
+              <li>Moderate ambiguity or stateful tool interaction.</li>
+              <li>Plan → act → inspect → adapt with bounded retries.</li>
+            </ul>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--amber">
+            <div class="panel-mobile-kicker">Research path</div>
+            <div class="panel-mobile-title">Longer horizon, synthesis-heavy work</div>
+            <ul class="panel-mobile-list">
+              <li>Open questions, multiple sources, wider monitoring surface.</li>
+              <li>Progress reports, stop conditions, and explicit delivery format.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="figure-caption">The key move is not to force work into a binary split. It is to expose the cues and operating shape that determine how the model should proceed.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="compare-grid reveal">
+  <div class="compare-card">
+    <div class="compare-label good">Robust Pattern</div>
+    <div class="compare-name">Explicit failure ladders</div>
+    <p>The best examples specify what to try first, what to try next, what not to repeat, and when to escalate. They turn error recovery into a protocol rather than a vibe.</p>
+  </div>
+  <div class="compare-card">
+    <div class="compare-label bad">Common Failure</div>
+    <div class="compare-name">Optimistic prose</div>
+    <p>Weak skills often document only the happy path. When something breaks, the model is left to invent retries, workarounds, or unsafe shortcuts in real time.</p>
+  </div>
+</div>
+
+<h3>State needs lifecycle, not vibes</h3>
+
+<p>Stateful skills are useful only if they also describe lifecycle. <code>memory.md</code> is not a strategy. The strongest pattern in the corpus separates state into tiers with load rules and promotion criteria, which keeps long-running skills from degenerating into arbitrary context accumulation.</p>
+
+<table class="report-table reveal">
+  <thead>
+    <tr>
+      <th>Tier</th>
+      <th>Where it lives</th>
+      <th>Size limit</th>
+      <th>When it loads</th>
+      <th>Lifecycle rule</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td data-label="Tier">HOT</td>
+      <td data-label="Where it lives"><code>memory.md</code></td>
+      <td data-label="Size limit">100 lines max</td>
+      <td data-label="When it loads">Always</td>
+      <td data-label="Lifecycle rule">Only the most frequently used facts stay here.</td>
+    </tr>
+    <tr>
+      <td data-label="Tier">WARM</td>
+      <td data-label="Where it lives"><code>projects/</code> and <code>domains/</code></td>
+      <td data-label="Size limit">200 lines each</td>
+      <td data-label="When it loads">Only on context match</td>
+      <td data-label="Lifecycle rule">Promote after repeated use; demote after inactivity.</td>
+    </tr>
+    <tr>
+      <td data-label="Tier">COLD</td>
+      <td data-label="Where it lives"><code>archive/</code></td>
+      <td data-label="Size limit">Unbounded, but queried</td>
+      <td data-label="When it loads">Explicit request only</td>
+      <td data-label="Lifecycle rule">Never delete without user confirmation.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="compare-grid reveal">
+  <div class="compare-card">
+    <div class="compare-label good">Cross-Skill Contracts</div>
+    <div class="compare-name">Typed reads and writes</div>
+    <p>Related skills work better when they declare what they consume, what they mutate, and which preconditions must already hold. That turns multi-skill coordination from social guesswork into a protocol.</p>
+  </div>
+  <div class="compare-card">
+    <div class="compare-label good">Output Formats</div>
+    <div class="compare-name">Different modes, different returns</div>
+    <p>Browse, analyze, and deep-dive should not collapse into one generic answer template. The output contract should shift with the action mode, audience, and data shape.</p>
+  </div>
+</div>
+
+<div class="section-marker reveal">
+  <span class="section-num">04 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Tier Classification</span>
+</div>
+
+<h2>Tiering the Corpus</h2>
+
+<p>Applied as a heuristic rubric, the 10 dimensions separate the corpus into four contract tiers. The tiers do not measure raw implementation polish in isolation; they measure how much of the runtime operating contract is carried by the skill file instead of inferred on the fly.</p>
+
+</div>
+</div>
+
+<div class="container--wide">
+  <div class="figure reveal" id="tier-distribution">
+    <div class="figure-title"><span>Fig. 02</span> Count, score band, and contract profile belong in one frame</div>
+    <div class="figure-diagram-desktop">
+      <div class="analysis-panel" role="img" aria-label="A four-card analytic panel for the 40-skill corpus that combines corpus count, heuristic score band, and contract profile across tiers 1 through 4.">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-kicker">Tier Panel</div>
+            <div class="panel-title">Separate distribution, rubric band, and contract quality</div>
+          </div>
+          <div class="panel-note">The earlier version split count, score, and interpretation across multiple layers. This panel keeps them together so each tier reads as one coherent operating profile.</div>
+        </div>
+        <div class="panel-definition-row">
+          <dl class="panel-definition">
+            <dt>Corpus count</dt>
+            <dd>The observed number of skills in the 40-file sample. It describes distribution, not quality by itself.</dd>
+          </dl>
+          <dl class="panel-definition">
+            <dt>Score band</dt>
+            <dd>A heuristic bucket on the 10-point rubric. The thresholds are comparative ranges, not magic safety boundaries.</dd>
+          </dl>
+          <dl class="panel-definition">
+            <dt>Reliability here</dt>
+            <dd>How explicit the runtime contract is: routing, failure handling, constraints, disclosure, state rules, and return format.</dd>
+          </dl>
+        </div>
+        <div class="tier-panel-grid">
+          <div class="tier-panel-card tier-panel-card--t1">
+            <div class="tier-panel-top">
+              <div class="tier-panel-name tier-panel-name--t1">Tier 1</div>
+              <div class="tier-panel-status">Production-grade contract</div>
+            </div>
+            <div class="tier-panel-metrics">
+              <div class="tier-metric">
+                <div class="tier-metric-label">Corpus count</div>
+                <div class="tier-metric-value">5</div>
+                <div class="tier-metric-copy">5 of 40 skills</div>
+              </div>
+              <div class="tier-metric">
+                <div class="tier-metric-label">Score band</div>
+                <div class="tier-metric-value">9–10</div>
+                <div class="tier-metric-copy">Near-complete rubric coverage</div>
+              </div>
+            </div>
+            <div class="tier-panel-copy">Routing, failure ladders, negative constraints, disclosure, state rules, and return formats are visible enough that the model can execute with limited inference.</div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Strength profile</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">routing</span>
+                <span class="panel-tag">failure ladders</span>
+                <span class="panel-tag">negative constraints</span>
+                <span class="panel-tag">state lifecycle</span>
+              </div>
+            </div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Representative skills</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">self-improving</span>
+                <span class="panel-tag">admapix</span>
+              </div>
+            </div>
+          </div>
+          <div class="tier-panel-card tier-panel-card--t2">
+            <div class="tier-panel-top">
+              <div class="tier-panel-name tier-panel-name--t2">Tier 2</div>
+              <div class="tier-panel-status">Mostly reliable shell</div>
+            </div>
+            <div class="tier-panel-metrics">
+              <div class="tier-metric">
+                <div class="tier-metric-label">Corpus count</div>
+                <div class="tier-metric-value">12</div>
+                <div class="tier-metric-copy">Largest upper-middle bucket</div>
+              </div>
+              <div class="tier-metric">
+                <div class="tier-metric-label">Score band</div>
+                <div class="tier-metric-value">7–8</div>
+                <div class="tier-metric-copy">Solid shell with visible gaps</div>
+              </div>
+            </div>
+            <div class="tier-panel-copy">The core operating shell is present, but some high-stakes decisions still remain inferred in long-tail recovery, disclosure, or cross-skill handoffs.</div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Typical pattern</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">quick shell</span>
+                <span class="panel-tag">mode cues</span>
+                <span class="panel-tag">tool setup</span>
+                <span class="panel-tag">partial recovery</span>
+              </div>
+            </div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Representative skills</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">docx</span>
+                <span class="panel-tag">xlsx</span>
+                <span class="panel-tag">docker</span>
+              </div>
+            </div>
+          </div>
+          <div class="tier-panel-card tier-panel-card--t3">
+            <div class="tier-panel-top">
+              <div class="tier-panel-name tier-panel-name--t3">Tier 3</div>
+              <div class="tier-panel-status">Useful wrapper, weak contract</div>
+            </div>
+            <div class="tier-panel-metrics">
+              <div class="tier-metric">
+                <div class="tier-metric-label">Corpus count</div>
+                <div class="tier-metric-value">15</div>
+                <div class="tier-metric-copy">Largest bucket overall</div>
+              </div>
+              <div class="tier-metric">
+                <div class="tier-metric-label">Score band</div>
+                <div class="tier-metric-value">4–6</div>
+                <div class="tier-metric-copy">Happy-path guidance only</div>
+              </div>
+            </div>
+            <div class="tier-panel-copy">These skills often work when the path is short and familiar, but routing, constraints, or error handling collapse once branching pressure rises.</div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Typical pattern</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">happy-path prose</span>
+                <span class="panel-tag">light examples</span>
+                <span class="panel-tag">weak constraints</span>
+                <span class="panel-tag">implicit branching</span>
+              </div>
+            </div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Representative skills</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">api-gateway</span>
+                <span class="panel-tag">tushare</span>
+              </div>
+            </div>
+          </div>
+          <div class="tier-panel-card tier-panel-card--t4">
+            <div class="tier-panel-top">
+              <div class="tier-panel-name tier-panel-name--t4">Tier 4</div>
+              <div class="tier-panel-status">Capability blurb</div>
+            </div>
+            <div class="tier-panel-metrics">
+              <div class="tier-metric">
+                <div class="tier-metric-label">Corpus count</div>
+                <div class="tier-metric-value">8</div>
+                <div class="tier-metric-copy">Small but risky bucket</div>
+              </div>
+              <div class="tier-metric">
+                <div class="tier-metric-label">Score band</div>
+                <div class="tier-metric-value">0–3</div>
+                <div class="tier-metric-copy">Minimal operating contract</div>
+              </div>
+            </div>
+            <div class="tier-panel-copy">The file describes what a tool can do but leaves activation, recovery, and safe return structure almost entirely to the model.</div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Typical pattern</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">feature list</span>
+                <span class="panel-tag">no contract</span>
+                <span class="panel-tag">minimal guards</span>
+                <span class="panel-tag">no failure ladder</span>
+              </div>
+            </div>
+            <div class="tier-panel-block">
+              <div class="tier-panel-block-label">Representative skills</div>
+              <div class="panel-tag-row">
+                <span class="panel-tag">baidu-search</span>
+                <span class="panel-tag">discord</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="route-bridge">
+          <strong>Interpret the bands cautiously</strong>
+          <p>The thresholds are heuristic buckets, not crisp boundaries where one point flips a skill from safe to unsafe. What matters is whether more of the runtime contract becomes explicit and auditable as the score rises.</p>
+        </div>
+      </div>
+    </div>
+    <div class="figure-diagram-mobile" aria-label="Tier distribution mobile fallback">
+      <div class="analysis-panel">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-kicker">Tier Panel</div>
+            <div class="panel-title">How to read the four tiers</div>
+          </div>
+        </div>
+        <div class="panel-mobile-stack">
+          <div class="panel-mobile-card">
+            <div class="panel-mobile-kicker">Read the numbers correctly</div>
+            <div class="panel-mobile-title">Count, score band, and contract profile are different signals</div>
+            <div class="panel-mobile-copy">Count describes how the sample is distributed. The score band is a heuristic bucket on the 10-point rubric. Reliability here means how explicit the runtime contract is.</div>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--green">
+            <div class="panel-mobile-kicker">Tier 1</div>
+            <div class="panel-mobile-title">Production-grade contract</div>
+            <div class="panel-mobile-meta">5 skills · score band 9–10</div>
+            <ul class="panel-mobile-list">
+              <li>Routing, failure handling, constraints, disclosure, and output format are explicit.</li>
+              <li>Examples: self-improving, admapix.</li>
+            </ul>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--blue">
+            <div class="panel-mobile-kicker">Tier 2</div>
+            <div class="panel-mobile-title">Mostly reliable shell</div>
+            <div class="panel-mobile-meta">12 skills · score band 7–8</div>
+            <ul class="panel-mobile-list">
+              <li>Core shell is strong, but some long-tail recovery or disclosure remains inferred.</li>
+              <li>Examples: docx, xlsx, docker.</li>
+            </ul>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--amber">
+            <div class="panel-mobile-kicker">Tier 3</div>
+            <div class="panel-mobile-title">Useful wrapper, weak contract</div>
+            <div class="panel-mobile-meta">15 skills · score band 4–6</div>
+            <ul class="panel-mobile-list">
+              <li>Often works on the obvious path, then degrades when branching or failure handling matters.</li>
+              <li>Examples: api-gateway, tushare.</li>
+            </ul>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--red">
+            <div class="panel-mobile-kicker">Tier 4</div>
+            <div class="panel-mobile-title">Capability blurb</div>
+            <div class="panel-mobile-meta">8 skills · score band 0–3</div>
+            <ul class="panel-mobile-list">
+              <li>The model must invent activation logic, recovery, and safe output structure almost from scratch.</li>
+              <li>Examples: baidu-search, discord.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="figure-caption">The important divide is not "has functionality" versus "does not." It is whether the file itself carries enough of the operating contract that the model can execute without inventing the missing rules at runtime.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="section-marker reveal">
+  <span class="section-num">05 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Meta-Pattern</span>
+</div>
+
+<h2>The Core Meta-Pattern Is Explicit Decision Surfaces</h2>
+
+<p>Across the corpus, the same deeper principle keeps reappearing. Reliable skills do not merely tell the model what tool is available. They precompute the decisions the model would otherwise have to infer under runtime pressure.</p>
+
+<div class="surface-grid reveal">
+  <div class="surface-card">
+    <div class="surface-kicker">Surface 01</div>
+    <h3>When to activate</h3>
+    <p>Positive triggers alone are insufficient. Strong descriptions also declare the contexts in which the skill should stay dormant.</p>
+  </div>
+  <div class="surface-card">
+    <div class="surface-kicker">Surface 02</div>
+    <h3>How to branch</h3>
+    <p>Explicit route selection prevents the model from using the same strategy for bounded tasks, adaptive loops, and long-horizon research.</p>
+  </div>
+  <div class="surface-card">
+    <div class="surface-kicker">Surface 03</div>
+    <h3>How to recover</h3>
+    <p>Good skills turn failure into a bounded state machine instead of an open-ended retry loop.</p>
+  </div>
+  <div class="surface-card">
+    <div class="surface-kicker">Surface 04</div>
+    <h3>What never to do</h3>
+    <p>Negative constraints catch the "plausibly helpful but wrong" actions that base-model alignment cannot reliably prevent.</p>
+  </div>
+  <div class="surface-card">
+    <div class="surface-kicker">Surface 05</div>
+    <h3>Where state lives</h3>
+    <p>Without load rules and lifecycles, persistence becomes an unbounded context leak.</p>
+  </div>
+  <div class="surface-card">
+    <div class="surface-kicker">Surface 06</div>
+    <h3>What format returns</h3>
+    <p>Output structure should depend on intent. The skill should not force the model to guess the deliverable at the end of the pipeline.</p>
+  </div>
+</div>
+
+<div class="callout reveal">
+  <div class="callout-label">Interpretation</div>
+  <p>The broad pattern is simple: weak skills tell the model <em>what to infer</em>; strong skills hand the model the inference outputs directly. That is why the latter are more stable, more auditable, and less sensitive to context drift.</p>
+</div>
+
+<div class="section-marker reveal">
+  <span class="section-num">06 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Anthropic Comparison</span>
+</div>
+
+<h2>Anthropic Production Skills Solve a Different Half of the Problem</h2>
+
+<p>The Anthropic production skills for <code>docx</code>, <code>pptx</code>, <code>xlsx</code>, and <code>pdf</code> share several Tier 1 and Tier 2 traits: concise activation descriptions, negative guards, quick-reference structure, and separate reference files for depth. Their relative weakness is different. They skew toward execution scaffolding more than rich decision scaffolding.</p>
+
+<div class="compare-grid reveal">
+  <div class="compare-card">
+    <div class="compare-label good">Anthropic Strength</div>
+    <div class="compare-name">Working implementation discipline</div>
+    <p>These skills are concise, install-aware, reference-backed, and designed for predictable execution inside a real product environment.</p>
+  </div>
+  <div class="compare-card">
+    <div class="compare-label good">Scraped Tier 1 Strength</div>
+    <div class="compare-name">Richer decision scaffolding</div>
+    <p>The strongest scraped skills often go further on routing, decision trees, failure ladders, and multi-skill contracts than the production baselines do.</p>
+  </div>
+</div>
+
+</div>
+</div>
+
+<div class="container--wide">
+  <div class="figure reveal" id="implementation-vs-behavior">
+    <div class="figure-title"><span>Fig. 03</span> A qualitative map of decision scaffolding and execution scaffolding</div>
+    <div class="figure-diagram-desktop">
+      <div class="analysis-panel" role="img" aria-label="A qualitative two-by-two matrix comparing decision scaffolding and execution scaffolding across thin wrappers, Tier 1 custom skills, Anthropic production baselines, and the target synthesis.">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-kicker">Qualitative Matrix</div>
+            <div class="panel-title">Decision scaffolding and execution scaffolding solve different failure modes</div>
+          </div>
+          <div class="panel-note">This is a qualitative map, not a measured benchmark. The value is in showing which skill families are strong on which axis, and where the synthesis should land.</div>
+        </div>
+        <div class="panel-definition-row">
+          <dl class="panel-definition">
+            <dt>Decision scaffolding</dt>
+            <dd>How much routing, failure handling, negative constraints, and output shaping the skill precomputes for the model.</dd>
+          </dl>
+          <dl class="panel-definition">
+            <dt>Execution scaffolding</dt>
+            <dd>How much installability, environment setup, typed tool usage, and operational verification the skill makes concrete.</dd>
+          </dl>
+          <dl class="panel-definition">
+            <dt>How to read it</dt>
+            <dd>Upper cells carry more explicit decision logic. Right-hand cells carry more productized execution discipline.</dd>
+          </dl>
+        </div>
+        <div class="matrix-shell">
+          <div class="matrix-y-label">Decision Scaffolding · Low → High</div>
+          <div class="matrix-main">
+            <div class="matrix-x-label">Execution Scaffolding · Low → High</div>
+            <div class="matrix-grid">
+              <div class="matrix-cell matrix-cell--tl">
+                <div class="matrix-cell-kicker">High decision / mid execution</div>
+                <div class="matrix-cell-title">Tier 1 custom skills</div>
+                <p>These files surface routing, failure ladders, and mode-specific returns more aggressively than most productized shells.</p>
+                <div class="panel-tag-row">
+                  <span class="panel-tag">routing</span>
+                  <span class="panel-tag">failure ladders</span>
+                  <span class="panel-tag">mode shifts</span>
+                </div>
+              </div>
+              <div class="matrix-cell matrix-cell--tr">
+                <div class="matrix-cell-kicker">Target synthesis</div>
+                <div class="matrix-cell-title">Explicit contract plus operational discipline</div>
+                <p>The strongest future pattern combines rich decision surfaces with install-aware shells, typed handoffs, monitoring hooks, and verification paths.</p>
+                <div class="panel-tag-row">
+                  <span class="panel-tag">routing</span>
+                  <span class="panel-tag">tool contracts</span>
+                  <span class="panel-tag">verification</span>
+                  <span class="panel-tag">state rules</span>
+                </div>
+              </div>
+              <div class="matrix-cell matrix-cell--bl">
+                <div class="matrix-cell-kicker">Low on both axes</div>
+                <div class="matrix-cell-title">Thin wrappers and capability blurbs</div>
+                <p>These files announce features but leave both the decision process and the execution discipline largely implicit.</p>
+                <div class="panel-tag-row">
+                  <span class="panel-tag">feature blurbs</span>
+                  <span class="panel-tag">weak guards</span>
+                  <span class="panel-tag">implicit recovery</span>
+                </div>
+              </div>
+              <div class="matrix-cell matrix-cell--br">
+                <div class="matrix-cell-kicker">Higher execution / mid decision</div>
+                <div class="matrix-cell-title">Anthropic production baseline</div>
+                <p>Lean install-aware shells and reference-backed execution discipline, with less branching depth than the strongest custom exemplars.</p>
+                <div class="panel-tag-row">
+                  <span class="panel-tag">install-aware</span>
+                  <span class="panel-tag">reference-backed</span>
+                  <span class="panel-tag">tool setup</span>
+                  <span class="panel-tag">predictable execution</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="route-bridge">
+          <strong>Read the comparison as synthesis, not ranking</strong>
+          <p>The useful point is that the families solve different halves of the operating problem. The goal is not to choose one style over the other; it is to merge them in the same skill.</p>
+        </div>
+      </div>
+    </div>
+    <div class="figure-diagram-mobile" aria-label="Anthropic comparison mobile fallback">
+      <div class="analysis-panel">
+        <div class="panel-header">
+          <div class="panel-header-left">
+            <div class="panel-kicker">Qualitative Matrix</div>
+            <div class="panel-title">How to read the comparison on mobile</div>
+          </div>
+        </div>
+        <div class="panel-mobile-stack">
+          <div class="panel-mobile-card">
+            <div class="panel-mobile-kicker">Read the axes</div>
+            <div class="panel-mobile-title">Decision scaffolding is different from execution scaffolding</div>
+            <div class="panel-mobile-copy">Decision scaffolding means the skill precomputes routing, failure handling, constraints, and output logic. Execution scaffolding means setup, tool usage, and verification are operationally concrete.</div>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--green">
+            <div class="panel-mobile-kicker">Tier 1 custom skills</div>
+            <div class="panel-mobile-title">High decision scaffolding</div>
+            <div class="panel-mobile-meta">Strong routing, failure ladders, and mode-specific returns</div>
+            <div class="panel-mobile-copy">These files are decision-rich, but they do not always ship with the same install-aware execution discipline as productized baselines.</div>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--accent">
+            <div class="panel-mobile-kicker">Target synthesis</div>
+            <div class="panel-mobile-title">High on both axes</div>
+            <div class="panel-mobile-meta">Explicit contract plus operational discipline</div>
+            <div class="panel-mobile-copy">The strongest pattern combines rich decision surfaces with typed handoffs, monitoring hooks, and predictable execution.</div>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--blue">
+            <div class="panel-mobile-kicker">Anthropic production baseline</div>
+            <div class="panel-mobile-title">Higher execution scaffolding</div>
+            <div class="panel-mobile-meta">Lean, install-aware, reference-backed shells</div>
+            <div class="panel-mobile-copy">These skills are operationally disciplined, but often less branching-rich than the strongest custom exemplars.</div>
+          </div>
+          <div class="panel-mobile-card panel-mobile-card--red">
+            <div class="panel-mobile-kicker">Thin wrappers</div>
+            <div class="panel-mobile-title">Low on both axes</div>
+            <div class="panel-mobile-meta">Capability blurbs with little contract structure</div>
+            <div class="panel-mobile-copy">They announce features without making either the decision process or the execution discipline concrete enough to trust under pressure.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="figure-caption">The strongest future pattern is not a choice between the two families. It is a synthesis: rich decision scaffolding plus disciplined execution scaffolding.</p>
+  </div>
+</div>
+
+<div class="container">
+<div class="article-body">
+
+<div class="callout reveal">
+  <div class="callout-label">Takeaway</div>
+  <p>The strongest skill is not merely longer, shorter, stricter, or more complete. It combines the decision scaffolding of the best custom skills with the operational discipline of production-grade references.</p>
+</div>
+
+<div class="section-marker reveal">
+  <span class="section-num">07 /</span>
+  <div class="section-rule"></div>
+  <span class="section-tag">Checklist</span>
+</div>
+
+<h2>A Practical Scoring Rubric</h2>
+
+<p>One useful way to operationalize the analysis is a simple heuristic score: one point for each of the ten decision surfaces below. In this corpus, 9–10 landed in Tier 1, 7–8 in Tier 2, 4–6 in Tier 3, and 0–3 in Tier 4.</p>
+
+<div class="score-board reveal">
+  <div class="score-row">
+    <div class="score-label">ivangdavila__self-improving</div>
+    <div class="score-track"><div class="score-fill t1" style="width:100%;"></div></div>
+    <div class="score-value">10/10</div>
+  </div>
+  <div class="score-row">
+    <div class="score-label">fly0pants__admapix</div>
+    <div class="score-track"><div class="score-fill t1" style="width:90%;"></div></div>
+    <div class="score-value">9/10</div>
+  </div>
+  <div class="score-row">
+    <div class="score-label">ivangdavila__docker</div>
+    <div class="score-track"><div class="score-fill t2" style="width:80%;"></div></div>
+    <div class="score-value">8/10</div>
+  </div>
+  <div class="score-row">
+    <div class="score-label">theishangoswami__web-search-exa</div>
+    <div class="score-track"><div class="score-fill t2" style="width:70%;"></div></div>
+    <div class="score-value">7/10</div>
+  </div>
+  <div class="score-row">
+    <div class="score-label">byungkyu__api-gateway</div>
+    <div class="score-track"><div class="score-fill t3" style="width:50%;"></div></div>
+    <div class="score-value">5/10</div>
+  </div>
+  <div class="score-row">
+    <div class="score-label">AlphaFactor__tushare</div>
+    <div class="score-track"><div class="score-fill t3" style="width:40%;"></div></div>
+    <div class="score-value">4/10</div>
+  </div>
+  <div class="score-row">
+    <div class="score-label">steipete__nano-banana-pro</div>
+    <div class="score-track"><div class="score-fill t4" style="width:30%;"></div></div>
+    <div class="score-value">3/10</div>
+  </div>
+  <div class="score-row">
+    <div class="score-label">steipete__camsnap</div>
+    <div class="score-track"><div class="score-fill t4" style="width:10%;"></div></div>
+    <div class="score-value">1/10</div>
+  </div>
+</div>
+
+<ul class="checklist reveal">
+  <li><div class="chk pass">✓</div><span>Does the activation description include at least one explicit negative condition, not just a positive use case?</span></li>
+  <li><div class="chk pass">✓</div><span>Is there a quick-reference shell that routes to deeper files or sections instead of loading everything inline?</span></li>
+  <li><div class="chk pass">✓</div><span>Are the core rules named and structured clearly enough that the model can execute them as a protocol?</span></li>
+  <li><div class="chk pass">✓</div><span>Is there a traps or anti-patterns section that catches predictable failure modes before the model reaches them?</span></li>
+  <li><div class="chk fail">✕</div><span>Is there an explicit error table or troubleshooting ladder that maps failures to bounded next actions?</span></li>
+  <li><div class="chk fail">✕</div><span>Are the highest-risk actions fenced by unambiguous "never" or "do not" rules?</span></li>
+  <li><div class="chk fail">✕</div><span>Does the skill disclose what data leaves the machine, what remains local, and what external systems retain?</span></li>
+  <li><div class="chk fail">✕</div><span>If the skill stores state, does it define location, size limits, access patterns, and lifecycle transitions?</span></li>
+  <li><div class="chk fail">✕</div><span>Do related skills declare typed contracts or rationale, rather than merely mentioning each other by name?</span></li>
+  <li><div class="chk fail">✕</div><span>Does frontmatter declare bins, env vars, OS constraints, and install steps in a machine-readable way?</span></li>
+</ul>
+
+<p>Those six failing checks are where most of the corpus quality gap actually lives. They are also the surfaces where long-context drift and safety regressions are hardest to catch if the file leaves them implicit.</p>
+
+</div>
+</div>
+
+<div class="container">
+  <div class="article-footer">
+    <div class="footer-inner">
+      <div class="footer-note">
+        Method: full read of 40 SKILL.md files across 40 packages.<br>
+        Baseline comparison: Anthropic production skills in <code>/mnt/skills/public</code>.<br>
+        All figures rebuilt for the site article system, March 2026.
+      </div>
+      <div class="footer-note" style="text-align:right">
+        The scoring rubric is intended as a design aid,<br>
+        not a substitute for runtime verification.<br>
+        Stronger skill files still need testing in context.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleTheme(){
+  var h=document.documentElement,d=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',d?'light':'dark');
+  localStorage.setItem('theme',d?'light':'dark');
+}
+
+(function(){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}
+    });
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+})();
+</script>
+
+</body>
+</html>
