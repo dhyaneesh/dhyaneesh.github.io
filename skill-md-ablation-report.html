@@ -398,6 +398,17 @@ p strong { font-weight: 500; }
   border-radius: 999px;
   background: rgba(255,255,255,0.02);
 }
+.panel-tag-link {
+  text-decoration: none;
+}
+.panel-tag-link:hover .panel-tag,
+.panel-tag-link:focus-visible .panel-tag {
+  color: var(--panel-ink);
+  border-color: color-mix(in srgb, var(--panel-accent) 42%, var(--panel-line));
+}
+.panel-tag-link:focus-visible {
+  outline: none;
+}
 
 .route-panel-grid {
   display: grid;
@@ -943,7 +954,7 @@ p strong { font-weight: 500; }
 .score-board { margin: 2rem 0; }
 .score-row {
   display: grid;
-  grid-template-columns: 240px 1fr 58px;
+  grid-template-columns: minmax(0, 310px) 1fr 58px;
   gap: 1rem;
   align-items: center;
   margin-bottom: .8rem;
@@ -952,6 +963,31 @@ p strong { font-weight: 500; }
   font-family: var(--mono);
   font-size: .72rem;
   color: var(--muted);
+  line-height: 1.4;
+}
+.score-label a {
+  display: grid;
+  gap: .12rem;
+  color: inherit;
+  text-decoration: none;
+}
+.score-name {
+  color: var(--muted);
+}
+.score-author {
+  font-family: var(--sans);
+  font-size: .66rem;
+  color: color-mix(in srgb, var(--muted) 82%, var(--ink));
+}
+.score-label a:hover .score-name,
+.score-label a:focus-visible .score-name {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+.score-label a:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--accent2) 60%, var(--border));
+  outline-offset: 2px;
 }
 .score-track {
   height: 8px;
@@ -1420,7 +1456,7 @@ p strong { font-weight: 500; }
     <h1 class="entrance entrance-d1"><em>SKILL.md</em> Ablation: What Makes Agent Skills Reliable</h1>
     <p class="hero-deck entrance entrance-d2">A corpus of 40 skills shows that the performance gap is not about topic coverage. It is about whether the file encodes the decisions the model would otherwise improvise: when to activate, how to branch, what never to do, what to disclose, where state lives, and how results should return.</p>
     <div class="byline entrance entrance-d3">
-      <span>40 scraped skills</span>
+      <span>40+ skills studied</span>
       <span class="byline-sep">·</span>
       <span>Anthropic production baseline</span>
       <span class="byline-sep">·</span>
@@ -1592,19 +1628,19 @@ p strong { font-weight: 500; }
   </thead>
   <tbody>
     <tr>
-      <td data-label="Example">ivangdavila__git</td>
+      <td data-label="Example"><a href="https://clawhub.ai/ivangdavila/git" target="_blank" rel="noreferrer noopener">Git by Ivan G Davila</a></td>
       <td data-label="Always-loaded footprint">141 lines</td>
       <td data-label="What works">Quick-reference rules route the agent to deeper files only when a task actually needs them.</td>
       <td data-label="Failure mode" class="hl-good">Depth is conditional, not paid up front.</td>
     </tr>
     <tr>
-      <td data-label="Example">Anthropic production skills</td>
+      <td data-label="Example"><a href="https://github.com/anthropics/skills/tree/main" target="_blank" rel="noreferrer noopener">Anthropic production skills</a></td>
       <td data-label="Always-loaded footprint">Concise shell + references</td>
       <td data-label="What works">Core behavior stays short, while richer examples sit behind secondary references.</td>
       <td data-label="Failure mode" class="hl-good">The model can stay oriented without carrying dead weight.</td>
     </tr>
     <tr>
-      <td data-label="Example">byungkyu__api-gateway</td>
+      <td data-label="Example"><a href="https://clawhub.ai/byungkyu/api-gateway" target="_blank" rel="noreferrer noopener">API Gateway by byungkyu</a></td>
       <td data-label="Always-loaded footprint">664 lines</td>
       <td data-label="What works">Broad routing coverage exists, but it is paid on every invocation regardless of relevance.</td>
       <td data-label="Failure mode" class="hl-bad">The model loads a service directory before it knows whether the service matters.</td>
@@ -1902,8 +1938,8 @@ p strong { font-weight: 500; }
             <div class="tier-panel-block">
               <div class="tier-panel-block-label">Representative skills</div>
               <div class="panel-tag-row">
-                <span class="panel-tag">self-improving</span>
-                <span class="panel-tag">admapix</span>
+                <a class="panel-tag-link" href="https://clawhub.ai/ivangdavila/self-improving" target="_blank" rel="noreferrer noopener"><span class="panel-tag">Self-Improving + Proactive Agent</span></a>
+                <a class="panel-tag-link" href="https://clawhub.ai/fly0pants/admapix" target="_blank" rel="noreferrer noopener"><span class="panel-tag">AdMapix</span></a>
               </div>
             </div>
           </div>
@@ -1937,9 +1973,9 @@ p strong { font-weight: 500; }
             <div class="tier-panel-block">
               <div class="tier-panel-block-label">Representative skills</div>
               <div class="panel-tag-row">
-                <span class="panel-tag">docx</span>
-                <span class="panel-tag">xlsx</span>
-                <span class="panel-tag">docker</span>
+                <a class="panel-tag-link" href="https://clawhub.ai/ivangdavila/word-docx" target="_blank" rel="noreferrer noopener"><span class="panel-tag">Word / DOCX</span></a>
+                <a class="panel-tag-link" href="https://clawhub.ai/ivangdavila/excel-xlsx" target="_blank" rel="noreferrer noopener"><span class="panel-tag">Excel / XLSX</span></a>
+                <a class="panel-tag-link" href="https://clawhub.ai/ivangdavila/docker" target="_blank" rel="noreferrer noopener"><span class="panel-tag">Docker</span></a>
               </div>
             </div>
           </div>
@@ -1973,8 +2009,8 @@ p strong { font-weight: 500; }
             <div class="tier-panel-block">
               <div class="tier-panel-block-label">Representative skills</div>
               <div class="panel-tag-row">
-                <span class="panel-tag">api-gateway</span>
-                <span class="panel-tag">tushare</span>
+                <a class="panel-tag-link" href="https://clawhub.ai/byungkyu/api-gateway" target="_blank" rel="noreferrer noopener"><span class="panel-tag">API Gateway</span></a>
+                <a class="panel-tag-link" href="https://clawhub.ai/AlphaFactor/tushare" target="_blank" rel="noreferrer noopener"><span class="panel-tag">Tushare Pro</span></a>
               </div>
             </div>
           </div>
@@ -2008,8 +2044,8 @@ p strong { font-weight: 500; }
             <div class="tier-panel-block">
               <div class="tier-panel-block-label">Representative skills</div>
               <div class="panel-tag-row">
-                <span class="panel-tag">baidu-search</span>
-                <span class="panel-tag">discord</span>
+                <a class="panel-tag-link" href="https://clawhub.ai/ide-rea/baidu-search" target="_blank" rel="noreferrer noopener"><span class="panel-tag">Baidu Search</span></a>
+                <a class="panel-tag-link" href="https://clawhub.ai/steipete/discord" target="_blank" rel="noreferrer noopener"><span class="panel-tag">Discord</span></a>
               </div>
             </div>
           </div>
@@ -2040,7 +2076,7 @@ p strong { font-weight: 500; }
             <div class="panel-mobile-meta">5 skills · score band 9–10</div>
             <ul class="panel-mobile-list">
               <li>Routing, failure handling, constraints, disclosure, and output format are explicit.</li>
-              <li>Examples: self-improving, admapix.</li>
+              <li>Examples: <a href="https://clawhub.ai/ivangdavila/self-improving" target="_blank" rel="noreferrer noopener">Self-Improving + Proactive Agent</a>, <a href="https://clawhub.ai/fly0pants/admapix" target="_blank" rel="noreferrer noopener">AdMapix</a>.</li>
             </ul>
           </div>
           <div class="panel-mobile-card panel-mobile-card--blue">
@@ -2049,7 +2085,7 @@ p strong { font-weight: 500; }
             <div class="panel-mobile-meta">12 skills · score band 7–8</div>
             <ul class="panel-mobile-list">
               <li>Core shell is strong, but some long-tail recovery or disclosure remains inferred.</li>
-              <li>Examples: docx, xlsx, docker.</li>
+              <li>Examples: <a href="https://clawhub.ai/ivangdavila/word-docx" target="_blank" rel="noreferrer noopener">Word / DOCX</a>, <a href="https://clawhub.ai/ivangdavila/excel-xlsx" target="_blank" rel="noreferrer noopener">Excel / XLSX</a>, <a href="https://clawhub.ai/ivangdavila/docker" target="_blank" rel="noreferrer noopener">Docker</a>.</li>
             </ul>
           </div>
           <div class="panel-mobile-card panel-mobile-card--amber">
@@ -2058,7 +2094,7 @@ p strong { font-weight: 500; }
             <div class="panel-mobile-meta">15 skills · score band 4–6</div>
             <ul class="panel-mobile-list">
               <li>Often works on the obvious path, then degrades when branching or failure handling matters.</li>
-              <li>Examples: api-gateway, tushare.</li>
+              <li>Examples: <a href="https://clawhub.ai/byungkyu/api-gateway" target="_blank" rel="noreferrer noopener">API Gateway</a>, <a href="https://clawhub.ai/AlphaFactor/tushare" target="_blank" rel="noreferrer noopener">Tushare Pro</a>.</li>
             </ul>
           </div>
           <div class="panel-mobile-card panel-mobile-card--red">
@@ -2067,7 +2103,7 @@ p strong { font-weight: 500; }
             <div class="panel-mobile-meta">8 skills · score band 0–3</div>
             <ul class="panel-mobile-list">
               <li>The model must invent activation logic, recovery, and safe output structure almost from scratch.</li>
-              <li>Examples: baidu-search, discord.</li>
+              <li>Examples: <a href="https://clawhub.ai/ide-rea/baidu-search" target="_blank" rel="noreferrer noopener">Baidu Search</a>, <a href="https://clawhub.ai/steipete/discord" target="_blank" rel="noreferrer noopener">Discord</a>.</li>
             </ul>
           </div>
         </div>
@@ -2301,42 +2337,82 @@ p strong { font-weight: 500; }
 
 <div class="score-board reveal">
   <div class="score-row">
-    <div class="score-label">ivangdavila__self-improving</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/ivangdavila/self-improving" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">Self-Improving + Proactive Agent</span>
+        <span class="score-author">Ivan G Davila</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t1" style="width:100%;"></div></div>
     <div class="score-value">10/10</div>
   </div>
   <div class="score-row">
-    <div class="score-label">fly0pants__admapix</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/fly0pants/admapix" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">AdMapix</span>
+        <span class="score-author">fly0pants</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t1" style="width:90%;"></div></div>
     <div class="score-value">9/10</div>
   </div>
   <div class="score-row">
-    <div class="score-label">ivangdavila__docker</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/ivangdavila/docker" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">Docker</span>
+        <span class="score-author">Ivan G Davila</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t2" style="width:80%;"></div></div>
     <div class="score-value">8/10</div>
   </div>
   <div class="score-row">
-    <div class="score-label">theishangoswami__web-search-exa</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/theishangoswami/web-search-exa" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">Web Search by Exa</span>
+        <span class="score-author">Ishan Goswami</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t2" style="width:70%;"></div></div>
     <div class="score-value">7/10</div>
   </div>
   <div class="score-row">
-    <div class="score-label">byungkyu__api-gateway</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/byungkyu/api-gateway" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">API Gateway</span>
+        <span class="score-author">byungkyu</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t3" style="width:50%;"></div></div>
     <div class="score-value">5/10</div>
   </div>
   <div class="score-row">
-    <div class="score-label">AlphaFactor__tushare</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/AlphaFactor/tushare" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">Tushare Pro</span>
+        <span class="score-author">AlphaFactor</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t3" style="width:40%;"></div></div>
     <div class="score-value">4/10</div>
   </div>
   <div class="score-row">
-    <div class="score-label">steipete__nano-banana-pro</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/steipete/nano-banana-pro" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">Nano Banana Pro</span>
+        <span class="score-author">Peter Steinberger</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t4" style="width:30%;"></div></div>
     <div class="score-value">3/10</div>
   </div>
   <div class="score-row">
-    <div class="score-label">steipete__camsnap</div>
+    <div class="score-label">
+      <a href="https://clawhub.ai/steipete/camsnap" target="_blank" rel="noreferrer noopener">
+        <span class="score-name">Camsnap</span>
+        <span class="score-author">Peter Steinberger</span>
+      </a>
+    </div>
     <div class="score-track"><div class="score-fill t4" style="width:10%;"></div></div>
     <div class="score-value">1/10</div>
   </div>
