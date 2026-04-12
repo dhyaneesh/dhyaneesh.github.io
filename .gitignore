@@ -1,2 +1,4 @@
 .playwright-mcp/
 .cursor/
+.superpowers/
+output/playwright/

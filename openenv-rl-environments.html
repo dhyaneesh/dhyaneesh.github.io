@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="favicon.ico" sizes="any">
+<title>What I Learnt Building RL Environments with OpenEnv</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0f0e; --paper: #f5f2ec; --cream: #ede9e0; --accent: #c8402a;
+  --accent2: #2a5fc8; --muted: #6b6860; --border: #d4cfc4;
+  --serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --sans: "DM Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", monospace;
+}
+[data-theme="dark"] {
+  --ink: #e5e1d8; --paper: #0d0d0c; --cream: #161514; --accent: #e85d3a;
+  --accent2: #4e82e6; --muted: #807b72; --border: #2a2724;
+}
+.theme-toggle { background:none; border:1px solid var(--border); color:var(--muted); font-size:.9rem; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:color .3s,border-color .3s,transform .6s cubic-bezier(.4,0,.2,1); line-height:1; padding:0; }
+.theme-toggle:hover { color:var(--ink); border-color:var(--ink); }
+[data-theme="dark"] .theme-toggle { transform:rotate(180deg); }
+[data-theme="dark"] .figure { box-shadow: 0 0 60px rgba(232,93,58,0.04); }
+[data-theme="dark"] svg rect[fill="#f5f2ec"] { fill: var(--paper); }
+[data-theme="dark"] svg rect[fill="#ede9e0"] { fill: var(--cream); }
+[data-theme="dark"] svg text[fill="#0f0f0e"] { fill: var(--ink); }
+[data-theme="dark"] svg text[fill="#6b6860"] { fill: var(--muted); }
+[data-theme="dark"] svg text[fill="#c8402a"] { fill: var(--accent); }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 18px; scroll-behavior: smooth; }
+body { background: var(--paper); color: var(--ink); font-family: var(--sans); font-weight: 300; line-height: 1.75; -webkit-font-smoothing: antialiased; transition: background-color .4s, color .4s; }
+.container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+.container--wide { max-width: 1160px; margin: 0 auto; padding: 0 2rem; }
+.masthead { border-bottom: 2px solid var(--ink); padding: 1.5rem 0 1rem; }
+.masthead-inner { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+.masthead-actions { display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; }
+.masthead-home { font-family: var(--mono); font-size: 0.6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color .15s; }
+.masthead-home:hover { color: var(--ink); }
+.site-tag { font-family: var(--mono); font-size: 0.65rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.site-name { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; letter-spacing: -.01em; }
+.issue-meta { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); text-align: right; line-height: 1.8; }
+.hero { padding: 5rem 0 3rem; border-bottom: 1px solid var(--border); }
+.hero-kicker { font-family: var(--mono); font-size: 0.65rem; letter-spacing: .15em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; }
+.hero-kicker::before { content: ""; display: inline-block; width: 24px; height: 1px; background: var(--accent); }
+.hero h1 { font-family: var(--serif); font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 900; line-height: 1.08; letter-spacing: -.04em; margin-bottom: 1.75rem; max-width: 820px; }
+.hero h1 em { font-style: normal; font-weight: 900; color: var(--accent); }
+.hero-deck { font-size: 1.1rem; font-weight: 300; color: var(--muted); max-width: 640px; line-height: 1.6; margin-bottom: 2.5rem; }
+.byline { display: flex; align-items: center; gap: 1.5rem; font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: .05em; flex-wrap: wrap; }
+.byline-sep { color: var(--border); }
+.article-body { padding: 4rem 0; }
+.section-marker { display: flex; align-items: center; gap: 1rem; margin-bottom: 3rem; padding-top: 4rem; }
+.section-marker:first-child { padding-top: 0; }
+.section-num { font-family: var(--mono); font-size: 0.6rem; color: var(--accent); letter-spacing: .1em; min-width: 40px; }
+.section-rule { flex: 1; height: 1px; background: var(--border); }
+.section-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+h2 { font-family: var(--serif); font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 700; line-height: 1.15; letter-spacing: -.02em; margin-bottom: 1.5rem; }
+h3 { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; line-height: 1.25; letter-spacing: -.015em; margin: 2.5rem 0 1rem; }
+p { margin-bottom: 1.4rem; font-size: 1rem; font-weight: 300; }
+p strong { font-weight: 500; }
+code { font-family: var(--mono); font-size: 0.82rem; background: var(--cream); border: 1px solid var(--border); padding: 1px 6px; border-radius: 2px; }
+.pull-quote { border-left: 3px solid var(--accent); padding: 0.5rem 0 0.5rem 2rem; margin: 3rem 0; }
+.pull-quote p { font-family: var(--serif); font-size: 1.35rem; font-weight: 300; line-height: 1.45; letter-spacing: -.02em; color: var(--ink); margin: 0; }
+.callout { background: var(--cream); border: 1px solid var(--border); border-radius: 2px; padding: 1.5rem 2rem; margin: 2.5rem 0; }
+.callout-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+.callout p { font-size: 0.9rem; margin-bottom: 0.75rem; }
+.callout p:last-child { margin-bottom: 0; }
+.figure { margin: 3rem -1rem; background: var(--cream); border: 1px solid var(--border); padding: 2rem; border-radius: 2px; overflow-x: hidden; }
+.figure-title { font-family: var(--mono); font-size: 0.65rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+.figure-title span { color: var(--accent); }
+.figure-caption { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); margin-top: 1.5rem; line-height: 1.6; letter-spacing: .03em; }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.stat-cell { background: var(--paper); padding: 1.5rem 1rem; text-align: center; }
+.stat-label { font-family: var(--mono); font-size: 0.55rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+.stat-val { font-family: var(--serif); font-size: 2rem; font-weight: 900; letter-spacing: -.04em; color: var(--ink); line-height: 1; }
+.stat-sub { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); margin-top: 0.4rem; }
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); }
+.compare-card { background: var(--paper); padding: 1.75rem; }
+.compare-era { font-family: var(--mono); font-size: 0.55rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+.compare-name { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; letter-spacing: -.02em; margin-bottom: 1rem; }
+.compare-list { list-style: none; padding: 0; }
+.compare-list li { font-size: 0.83rem; color: var(--muted); padding: 0.4rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.75rem; line-height: 1.55; }
+.compare-list li:last-child { border-bottom: none; }
+.compare-list li::before { content: "—"; color: var(--accent); font-family: var(--mono); font-size: 0.65rem; flex-shrink: 0; padding-top: 0.1rem; }
+.playbook-item { display: grid; grid-template-columns: 40px 1fr; gap: 1.5rem; padding: 1.75rem 0; border-bottom: 1px solid var(--border); align-items: start; }
+.playbook-item:last-child { border-bottom: none; }
+.playbook-num { font-family: var(--mono); font-size: 1.8rem; font-weight: 500; color: var(--border); line-height: 1; padding-top: 0.1rem; }
+.playbook-label { font-family: var(--mono); font-size: 0.55rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.35rem; }
+.playbook-title { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; letter-spacing: -.015em; margin-bottom: 0.6rem; }
+.playbook-body { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+.article-footer { border-top: 2px solid var(--ink); padding: 3rem 0; margin-top: 2rem; }
+.footer-inner { display: flex; justify-content: space-between; align-items: baseline; gap: 2rem; flex-wrap: wrap; }
+.footer-note { font-family: var(--mono); font-size: 0.6rem; color: var(--muted); letter-spacing: .04em; line-height: 1.9; }
+.footer-note a { color: var(--muted); }
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s cubic-bezier(.16,1,.3,1), transform .65s cubic-bezier(.16,1,.3,1); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } html { scroll-behavior: auto; } }
+@media (min-width: 1100px) { .container { max-width: 1060px; } .container--wide { max-width: 1330px; } }
+@media (min-width: 1440px) { .container { max-width: 1240px; padding: 0 3rem; } .container--wide { max-width: 1480px; padding: 0 3rem; } }
+@media (max-width: 860px) { .compare-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  html { font-size: 16px; }
+  .container { padding: 0 1.25rem; }
+  .hero { padding: 2.5rem 0 2rem; }
+  .hero-deck { font-size: 0.95rem; }
+  .stat-row { grid-template-columns: 1fr 1fr; }
+  .figure { margin: 2rem -0.5rem; padding: 1.25rem; }
+  .playbook-item { grid-template-columns: 32px 1fr; gap: 1rem; }
+  .footer-inner { flex-direction: column; }
+  .figure-diagram-desktop { display: none !important; }
+  .figure-diagram-mobile { display: block !important; }
+}
+@media (min-width: 601px) { .figure-diagram-mobile { display: none; } }
+.m-cmp-block { background: var(--paper); border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1px; }
+.m-cmp-era { font-family: var(--mono); font-size: 0.55rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+.m-cmp-name { font-family: var(--serif); font-size: 1rem; font-weight: 700; margin-bottom: 0.75rem; }
+.m-cmp-list { list-style: none; padding: 0; }
+.m-cmp-list li { font-size: 0.82rem; color: var(--muted); padding: 0.3rem 0; border-bottom: 1px solid var(--border); display: flex; gap: 0.5rem; line-height: 1.5; }
+.m-cmp-list li:last-child { border-bottom: none; }
+.m-cmp-list li::before { content: "—"; color: var(--accent); font-family: var(--mono); font-size: 0.6rem; flex-shrink: 0; }
+</style>
+<script>(function(){var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme:dark)").matches))document.documentElement.setAttribute("data-theme","dark")})();</script>
+</head>
+<body>
+
+<div class="container">
+  <div class="masthead">
+    <div class="masthead-inner">
+      <div>
+        <div class="site-tag">Field Report</div>
+        <div class="site-name">Dhyaneesh DS</div>
+      </div>
+      <div class="masthead-actions">
+        <a href="index.html" class="masthead-home">&larr; All writing</a>
+        <div class="issue-meta">Field Report No. 4<br>April 2026</div>
+        <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">&#9680;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="hero">
+    <div class="hero-kicker">RL Infrastructure &middot; Environment Design &middot; Post-Training</div>
+    <h1>What I Learnt Building RL Environments with <em>OpenEnv</em></h1>
+    <p class="hero-deck">I built Pwned &mdash; a deterministic, partially observable cyber-range benchmark &mdash; on top of Meta-PyTorch&rsquo;s OpenEnv. Here is what the architecture taught me about why HTTP-native environments are the right abstraction for post-training RL, and what it means for the decade-long reign of OpenAI Gym.</p>
+    <div class="byline">
+      <span>Dhyaneesh DS</span>
+      <span class="byline-sep">/</span>
+      <span>April 2026</span>
+      <span class="byline-sep">/</span>
+      <span>~2,600 words</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="article-body">
+    <div class="section-marker reveal">
+      <span class="section-num">01 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">The Gymnasium Problem</span>
+    </div>
+    <h2>OpenAI Gym built the wrong abstraction for the wrong era</h2>
+    <p>OpenAI Gym shipped in 2016 and did exactly what it was designed to do: give researchers a standard API for training agents on classic control tasks. CartPole, Atari, MuJoCo. The interface was elegant &mdash; <code>reset()</code> returns an observation, <code>step(action)</code> returns the next one plus a reward &mdash; and it unified a decade of RL research under a single import.</p>
+    <p>But Gym was built around a specific model: one process, one machine, observation spaces defined as NumPy arrays, environments imported as Python classes. That model was correct for the research it was designed to serve. It is the wrong model for what RL is used for now.</p>
+    <p>When you are fine-tuning a language model with GRPO, you are running a distributed training job across multiple GPUs, generating thousands of rollouts in parallel, and scoring them with a reward model that may itself be running on a separate host. The environment in this setting is not a local Python class. It is a service. Treating it like a local Python class is the source of a lot of accidental complexity that shows up as infrastructure glue code, not research.</p>
+    <div class="pull-quote reveal">
+      <p>Gym was an API for a Python process. OpenEnv is an API for a network service. That distinction matters more than it sounds.</p>
+    </div>
+    <p>The problems compound when you try to share environments. With Gym, sharing meant publishing a Python package, version pinning, and hoping the recipient had matching system dependencies. This made it nearly impossible to build a genuine ecosystem of training tasks &mdash; the equivalent of a dataset hub, but for environments.</p>
+
+    <div class="section-marker reveal">
+      <span class="section-num">02 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">What OpenEnv Actually Is</span>
+    </div>
+    <h2>Three verbs, a Docker container, and a Hugging Face Space</h2>
+    <p>OpenEnv is not a drop-in replacement for Gymnasium. It does not ship with Atari wrappers or continuous control benchmarks. What it ships with is a pattern: every environment is a FastAPI server running in a Docker container, exposing three endpoints &mdash; <code>/reset</code>, <code>/step</code>, and <code>/state</code> &mdash; over HTTP and WebSocket. The client is a typed Python class that speaks to that server from anywhere on the network.</p>
+    <p>The API shape is intentionally Gymnasium-adjacent. Anyone who has used Gym will read the quick-start in thirty seconds. But the mechanism is entirely different. The environment is not imported &mdash; it is connected to. The observation is not a NumPy array &mdash; it is a Pydantic model. The action is not a <code>gym.Space</code> sample &mdash; it is a typed dataclass with validation. And the server can run anywhere: your laptop, a cloud VM, or a Hugging Face Space, deployed in one command.</p>
+    <div class="callout reveal">
+      <div class="callout-label">The three core verbs</div>
+      <p><strong>reset()</strong> &mdash; Initialise a new episode. Returns a typed Observation and a session identifier. Accepts seed and episode_id for exact reproducibility across training runs.</p>
+      <p><strong>step(action)</strong> &mdash; Advance the episode by one action. Returns a StepResult: observation, reward, done flag, and optional metadata. The action is a validated Pydantic model, not a raw array.</p>
+      <p><strong>state()</strong> &mdash; Return episode state without advancing it. Useful for debugging, multi-client scenarios, and benchmark inspection without consuming a step budget.</p>
+    </div>
+    <p>The typed model is what most changes how you design environments. In Gym, your observation was whatever you returned from <code>step()</code> &mdash; usually a NumPy array, sometimes a dict. In OpenEnv, you define an Observation class with named Pydantic fields. That class becomes the contract between the environment and any RL framework that connects to it. The server validates before sending; the client validates before handing to the training loop. What sounds like overhead eliminates an entire class of bugs that otherwise appear as NaN losses three hours into a training run.</p>
+
+    <div class="section-marker reveal">
+      <span class="section-num">03 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">Building Pwned on OpenEnv</span>
+    </div>
+    <h2>What designing a cyber-range benchmark taught me</h2>
+    <p>Pwned is a deterministic, partially observable cyber-range built on OpenEnv. It has two public suites: a Pentesting suite where agents pivot through a hidden network topology using commands like <code>nmap</code>, <code>ssh</code>, and <code>exfiltrate</code>; and a SecOps suite where agents respond to incident tickets using evidence they must observe and cite. Both suites share the same HTTP transport, the same session model, and the same deterministic reward engine. Building on OpenEnv forced three design decisions I would not have thought to make starting from a Gym subclass.</p>
+    <h3>The session model is not optional when you run concurrent episodes</h3>
+    <p>OpenEnv&rsquo;s <code>reset()</code> returns a <code>session_id</code>. Every subsequent call includes that ID. This is the correct default because HTTP is stateless &mdash; without a session identifier threaded through every request, you cannot run multiple episodes concurrently against the same server, which is exactly what distributed RL training does. In Gym, state was implicit &mdash; it lived in the environment object. Running two episodes simultaneously required threading locks or spawning separate processes. OpenEnv makes the session boundary explicit and puts it in the transport. That lets one server handle hundreds of concurrent episodes cleanly.</p>
+    <h3>The public/private state boundary is an architectural guarantee, not a naming convention</h3>
+    <p>Pwned has a hidden network topology &mdash; the true graph of hosts, subnets, and pivot paths is never sent to the agent. In a local Gym environment, hidden state and observed state live in the same Python object. Nothing stops you from accidentally logging the full state to training metrics, leaking information the agent should not have. OpenEnv&rsquo;s client/server boundary enforces this at the protocol level: <code>PwnedPublicState</code> is what the server serialises. The hidden <code>PwnedEnvironment.state</code> stays in-process and is never written to the transport. Partial observability becomes an architectural guarantee, not a convention that a careless evaluation script can violate.</p>
+    <h3>Evidence minting is a temporal contract, not a data structure</h3>
+    <p>The SecOps suite requires agents to cite evidence by ID in their final report. Evidence entries are minted at observation time &mdash; the moment an agent receives a <code>StepResult</code>, the observable facts are stamped with deterministic IDs like <code>ev-0001</code>. They cannot be backfilled. An agent that cites <code>ev-0023</code> when the episode only produced twelve entries loses score. This maps exactly onto OpenEnv&rsquo;s step-based model. Each <code>step()</code> call returns one observation &mdash; the atomic unit of what the agent knows. Minting at observation time creates an auditable record of when each piece of information became available, making benchmark grading reproducible: same seed, same actions, same cited IDs produces the same score every time.</p>
+
+    <div class="section-marker reveal">
+      <span class="section-num">04 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">Why Post-Training RL Needed This</span>
+    </div>
+    <h2>The HTTP latency trade-off only cuts one way</h2>
+    <p>Classic RL objections to HTTP-based environments are real: an in-process <code>env.step()</code> call takes microseconds; an HTTP round-trip takes milliseconds. For Atari or continuous control tasks requiring millions of steps, that gap is prohibitive. Vectorised environments &mdash; 64 or 256 copies of a Gym environment running in parallel on one machine &mdash; exist precisely to amortise per-step compute and keep the GPU busy.</p>
+    <p>But post-training RL on language models has inverted this math. Each &ldquo;step&rdquo; in a language model episode is a forward pass through billions of parameters &mdash; hundreds of milliseconds to seconds. An HTTP round-trip to the environment is noise in that budget. The bottleneck is the model, not the transport. And unlike Atari, where you can vectorise 256 environments on one CPU, language model training already runs across multiple GPU nodes. The training process and the environment need to be on different hosts by default, not by exception.</p>
+    <div class="callout reveal">
+      <div class="callout-label">RFC 004 &mdash; Delayed Rewards</div>
+      <p>OpenEnv RFC 004 adds trajectory-level scoring: the reward signal is computed over an entire episode rather than at each step. This is the native shape of GRPO &mdash; generate a rollout, score it holistically, compute the gradient from the outcome. Making this a first-class protocol feature means training frameworks do not need to hack around a step-level API to implement outcome-based reward.</p>
+    </div>
+    <p>The Hugging Face Spaces deployment model extends this further. An OpenEnv environment pushed to HF Spaces is publicly addressable at a stable URL. A TRL training script on a GPU cluster, an Oumi experiment on a university machine, a SkyRL job on a cloud VM &mdash; all of them can connect to the same environment without infrastructure coordination. The environment operator and the model trainer do not need to be the same person. That is a fundamentally different relationship than anything Gym could offer.</p>
+    <div class="section-marker reveal">
+      <span class="section-num">05 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">Gym vs OpenEnv</span>
+    </div>
+    <h2>The architectural reckoning</h2>
+    <p>The two models reflect different assumptions about what RL training looks like. Neither is universally better. But one of them matches how frontier model training is actually done.</p>
+  </div>
+</div>
+
+<div class="container--wide">
+  <div class="figure reveal">
+    <div class="figure-title"><span>Fig. 01</span> &mdash; Architectural assumptions: Gym versus OpenEnv</div>
+    <div class="figure-diagram-desktop">
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-era">2016 &ndash; 2022</div>
+          <div class="compare-name">OpenAI Gym / Gymnasium</div>
+          <ul class="compare-list">
+            <li>In-process Python class &mdash; environment and trainer share the same runtime and memory</li>
+            <li>NumPy Box spaces &mdash; observations are untyped arrays identified by shape and dtype alone</li>
+            <li>Single-machine by default &mdash; concurrency requires process-level forking or vectorised wrappers</li>
+            <li>Distributed as a Python package &mdash; system dependencies must match on every machine</li>
+            <li>Step-level rewards only &mdash; trajectory scoring bolted on outside the protocol by the user</li>
+            <li>Hidden state accessible in-process &mdash; partial observability is convention, not enforced</li>
+          </ul>
+        </div>
+        <div class="compare-card">
+          <div class="compare-era">2025 &ndash;</div>
+          <div class="compare-name">OpenEnv</div>
+          <ul class="compare-list">
+            <li>FastAPI server in Docker &mdash; environment and trainer are separate network peers on separate hosts</li>
+            <li>Pydantic typed models &mdash; observations are validated dataclasses with named, typed, documented fields</li>
+            <li>Session-based HTTP &mdash; one server handles hundreds of concurrent episodes with no process forking</li>
+            <li>Deployed to HF Spaces &mdash; addressable by any training framework via a stable URL, no install required</li>
+            <li>RFC 004 delayed rewards &mdash; trajectory-level scoring is a first-class environment protocol feature</li>
+            <li>Transport enforces the boundary &mdash; hidden state cannot be serialised to the wire, partial obs guaranteed</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="figure-diagram-mobile">
+      <div class="m-cmp-block">
+        <div class="m-cmp-era">2016 &ndash; 2022</div>
+        <div class="m-cmp-name">OpenAI Gym / Gymnasium</div>
+        <ul class="m-cmp-list">
+          <li>In-process class; trainer and env share runtime</li>
+          <li>NumPy Box spaces; untyped arrays with shape/dtype</li>
+          <li>Single-machine; concurrency via process forking</li>
+          <li>Shared as a Python package with version deps</li>
+          <li>Step-level rewards only</li>
+          <li>Partial observability is convention, not enforced</li>
+        </ul>
+      </div>
+      <div class="m-cmp-block">
+        <div class="m-cmp-era">2025 &ndash;</div>
+        <div class="m-cmp-name">OpenEnv</div>
+        <ul class="m-cmp-list">
+          <li>FastAPI server in Docker; env and trainer are network peers</li>
+          <li>Pydantic typed models; validated named fields</li>
+          <li>Session-based HTTP; many concurrent episodes per server</li>
+          <li>HF Spaces deployment; stable URL, no install required</li>
+          <li>Trajectory-level rewards via RFC 004</li>
+          <li>Hidden state cannot be serialised; partial obs guaranteed</li>
+        </ul>
+      </div>
+    </div>
+    <div class="figure-caption">OpenEnv does not win on step throughput for classic control. It wins on the constraints post-training RL actually has: distributed training, typed observations, shared addressability, and trajectory-level reward.</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="article-body" style="padding-top:0">
+    <p>The Gym model had one advantage OpenEnv has not recovered: raw throughput. In-process calls are nanoseconds; HTTP is milliseconds. For classic RL tasks requiring millions of steps, that gap is prohibitive. OpenEnv is not trying to win where Gym is strong. It targets the regime where Gym&rsquo;s performance assumptions no longer hold &mdash; and where the distributed, multi-party, service-oriented model is the only one that scales.</p>
+    <div class="section-marker reveal">
+      <span class="section-num">06 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">Democratisation</span>
+    </div>
+    <h2>The environment ecosystem that should exist but does not yet</h2>
+    <p>Datasets for language model training have a hub. You can search Hugging Face, preview a dataset, and load it in three lines of code. Training environments have no equivalent. You can publish a paper, link a GitHub repo, and hope someone manages to reproduce your setup. Or you can push to HF Spaces with <code>openenv push</code> and hand anyone a URL.</p>
+    <p>The barrier to contributing a training environment used to require understanding the MDP formalism, reading the Gym registration docs, testing compatibility with every RL framework, and maintaining a pip package. The OpenEnv model reduces this to: implement three methods, write a Dockerfile, run one command. Your environment is then accessible to TRL, SkyRL, ART, Oumi, and Unsloth training scripts without any additional integration work, because they all speak the same HTTP protocol.</p>
+    <p>This is how ecosystem flywheels start. The Hugging Face datasets hub works because contributing friction is near zero and discoverability value is high. OpenEnv has the same structure in principle. The catalog is nascent &mdash; a handful of toy environments, a chess env, some Atari wrappers &mdash; but the infrastructure bet is that if you make environments as shareable as datasets, the research surface area any single lab can explore expands dramatically. Instead of every team building and maintaining their own training environments, the field converges on a shared catalog and spends its compute budget on the models, not the infrastructure.</p>
+  </div>
+</div>
+
+<div class="container--wide">
+  <div class="figure reveal">
+    <div class="figure-title"><span>Fig. 02</span> &mdash; OpenEnv ecosystem snapshot &mdash; April 2026</div>
+    <div class="stat-row">
+      <div class="stat-cell">
+        <div class="stat-label">GitHub Stars</div>
+        <div class="stat-val">1.5k</div>
+        <div class="stat-sub">meta-pytorch/OpenEnv</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Forks</div>
+        <div class="stat-val">270</div>
+        <div class="stat-sub">active contributors</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Commits</div>
+        <div class="stat-val">1,385</div>
+        <div class="stat-sub">since first release</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">RL Frameworks</div>
+        <div class="stat-val">6+</div>
+        <div class="stat-sub">TRL &middot; SkyRL &middot; ART &middot; Oumi &middot; Unsloth &middot; torchforge</div>
+      </div>
+    </div>
+    <div class="figure-caption">Numbers from the public GitHub repo as of April 2026. The framework integration list is notable: these are not toy integrations &mdash; each ships a working training example with GRPO or PPO on an OpenEnv environment.</div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="article-body" style="padding-top:0">
+    <div class="section-marker reveal">
+      <span class="section-num">07 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">Lessons from Pwned</span>
+    </div>
+    <h2>Four things I would tell myself before starting</h2>
+    <div class="playbook-item reveal">
+      <div class="playbook-num">01</div>
+      <div>
+        <div class="playbook-label">Design the observation first</div>
+        <div class="playbook-title">Your Observation class is your environment&rsquo;s public API</div>
+        <div class="playbook-body">In Gym you could change what your environment returned at any time because it was just an array. In OpenEnv, your Observation is a Pydantic model that training frameworks depend on. Changing it breaks the wire format. Spend time getting the field names, types, and nullability right before writing any simulation logic. The typed model is a feature, not a constraint &mdash; but only if you design it intentionally.</div>
+      </div>
+    </div>
+    <div class="playbook-item reveal">
+      <div class="playbook-num">02</div>
+      <div>
+        <div class="playbook-label">Session hygiene</div>
+        <div class="playbook-title">Treat session_id as a first-class resource, not a routing token</div>
+        <div class="playbook-body">Concurrent evaluation means multiple sessions running simultaneously. If your environment has any global mutable state &mdash; a random seed, a shared data structure, a file handle &mdash; it will cause races that are nearly impossible to debug under concurrent load. The session model is only useful if the environment behind it is genuinely session-scoped. Design for concurrency from the start; retrofitting it is painful.</div>
+      </div>
+    </div>
+    <div class="playbook-item reveal">
+      <div class="playbook-num">03</div>
+      <div>
+        <div class="playbook-label">Reward design</div>
+        <div class="playbook-title">The step penalty is not cosmetic &mdash; it is your efficiency signal</div>
+        <div class="playbook-body">Pwned charges &minus;0.01 per step and &minus;1.01 on detection or tamper. The step penalty punishes noisy, reckless action sequences that happen to arrive at the right answer. Without it, a policy that runs <code>nmap</code> exhaustively on every subnet will outscore one that reasons about what it has already discovered. If you want agents that are efficient as well as effective, the reward function needs to make efficiency legible from the start.</div>
+      </div>
+    </div>
+    <div class="playbook-item reveal">
+      <div class="playbook-num">04</div>
+      <div>
+        <div class="playbook-label">Benchmark vs training environment</div>
+        <div class="playbook-title">Decide which one you are building and make it unambiguous</div>
+        <div class="playbook-body">A training environment should maximise signal density: reward shaping, curriculum, dense feedback at every step. A benchmark should maximise reproducibility: deterministic grading, fixed rubrics, no stochastic reward. Pwned is a benchmark first &mdash; same seed, same actions, same cited evidence IDs produces the same score every run. This made the grader design straightforward but constrained the reward engineering. Know your primary user before you write a line of simulation logic.</div>
+      </div>
+    </div>
+    <div class="section-marker reveal">
+      <span class="section-num">08 /</span>
+      <div class="section-rule"></div>
+      <span class="section-tag">The Bottom Line</span>
+    </div>
+    <h2>Where this is going</h2>
+    <p>OpenEnv is early &mdash; the team flags it explicitly, the API will change, and the environment catalog is thin compared to what Gymnasium built up over a decade. But the underlying architectural bet is correct: environments for post-training RL should be network services, typed, containerised, and deployable to shared infrastructure.</p>
+    <p>The research that needs to happen next &mdash; better reward functions, harder tasks, more realistic simulation &mdash; will be easier if the infrastructure for sharing environments is already settled. The analogous moment for datasets was when Hugging Face standardised the dataset loading API and launched the Hub. Before that, every paper had its own preprocessing script and download link. After that, reproducing a paper&rsquo;s data pipeline was one line of code. OpenEnv is trying to do the same thing for training environments. Whether the catalog reaches critical mass is an open question. But the architecture is right, and the timing &mdash; coinciding with post-training RL becoming the dominant method for improving frontier models &mdash; is better than it looks from the outside.</p>
+    <div class="pull-quote reveal">
+      <p>The next step for RL research infrastructure is not better algorithms &mdash; it is better shared environments. OpenEnv is the right bet on what that looks like.</p>
+    </div>
+    <p>Pwned is live on Hugging Face Spaces and the code is public at <a href="https://github.com/dhyaneesh/pwned" style="color:var(--accent)">github.com/dhyaneesh/pwned</a>. If you want to run an agent against it or build on the environment protocol, <code>inference.py</code> in the repo root is the fastest path in.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="article-footer">
+    <div class="footer-inner">
+      <div class="footer-note">
+        &copy; 2026 Dhyaneesh DS &mdash; Field Report No. 4<br>
+        Pwned: <a href="https://github.com/dhyaneesh/pwned">github.com/dhyaneesh/pwned</a><br>
+        OpenEnv: <a href="https://github.com/meta-pytorch/OpenEnv">github.com/meta-pytorch/OpenEnv</a>
+      </div>
+      <div class="footer-note" style="text-align:right">
+        <a href="index.html" style="color:var(--muted);text-decoration:none;font-family:var(--mono);font-size:0.6rem;letter-spacing:.1em;text-transform:uppercase">&larr; All writing</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleTheme() {
+  var h = document.documentElement;
+  var d = h.getAttribute("data-theme") === "dark";
+  h.setAttribute("data-theme", d ? "light" : "dark");
+  localStorage.setItem("theme", d ? "light" : "dark");
+}
+var obs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add("visible"); } });
+}, { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(function(el) { obs.observe(el); });
+</script>
+</body>
+</html>
